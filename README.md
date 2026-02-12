@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Traxscout
 
-## Getting Started
+AI-powered track discovery for DJs.
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Traxscout automatically scans music sources (Beatport, Traxsource, promo pools) and delivers filtered/curated track lists based on your preferences.
+
+## Features
+
+### Basic Tier ($19.99/mo)
+- Beatport scanning
+- Traxsource scanning
+- Promo pool connection (via browser extension)
+- Genre, BPM, label filters
+- Daily/weekly email digests
+
+### Pro Tier ($39.99/mo)
+- Everything in Basic
+- AI-powered curation (user provides API key)
+- Vibe matching
+- Quality filtering
+- Track descriptions
+
+## Tech Stack
+
+- **Frontend:** Next.js 14 (App Router)
+- **Styling:** Tailwind CSS
+- **Database:** Supabase (Postgres)
+- **Auth:** Supabase Auth
+- **Payments:** Stripe
+- **AI:** User's Anthropic/OpenAI key
+- **Email:** Resend
+
+## Project Structure
+
+```
+src/
+├── app/              # Next.js app router pages
+├── components/       # React components
+├── hooks/            # Custom React hooks
+├── lib/              # Utilities and config
+├── services/
+│   ├── scanners/     # Beatport, Traxsource, promo pool scanners
+│   ├── ai/           # AI curation service
+│   └── delivery/     # Email/notification delivery
+├── types/            # TypeScript types
+└── utils/            # Helper functions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Install dependencies
+pnpm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Run development server
+pnpm dev
 
-## Learn More
+# Build for production
+pnpm build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Stripe
+STRIPE_SECRET_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
 
-## Deploy on Vercel
+# Resend (Email)
+RESEND_API_KEY=
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Encryption
+ENCRYPTION_KEY=
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Spec
+
+Full product specification: `/specs/track-scout-app-spec.md`
+
+## Status
+
+🚧 Under development
+
+### Done
+- [x] Project scaffolding
+- [x] Type definitions
+- [x] Scanner base class
+- [x] Beatport scanner
+- [x] Traxsource scanner
+- [x] AI curator service
+- [x] Landing page
+
+### TODO
+- [ ] Auth setup (Supabase)
+- [ ] Stripe integration
+- [ ] Onboarding flow
+- [ ] Dashboard
+- [ ] Email delivery
+- [ ] Browser extension
+- [ ] Promo pool scanner
+- [ ] API routes
+- [ ] Cron jobs
+
+---
+
+**Domain:** traxscout.app (Porkbun)
+
+Built by MEDNAS

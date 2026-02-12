@@ -1,0 +1,14 @@
+# Code Owners - Require approval for sensitive files
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# All files require Med's approval
+* @mednas
+
+# Security-critical files require explicit review
+/src/lib/prompts.ts @mednas
+/src/lib/encryption.ts @mednas
+/src/lib/security.ts @mednas
+/src/lib/anti-abuse.ts @mednas
+/src/services/api-keys.ts @mednas
+/.env* @mednas
+/SECURITY.md @mednas

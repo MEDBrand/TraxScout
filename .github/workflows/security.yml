@@ -1,0 +1,73 @@
+# Security checks on every push/PR
+
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      # Check for secrets in code
+      - name: Check for secrets
+        run: |
+          if grep -rn "sk-ant-\|sk-proj-\|whsec_\|ENCRYPTION_KEY=" --include="*.ts" --include="*.tsx" --include="*.js" src/; then
+            echo "❌ Secrets found in code!"
+            exit 1
+          fi
+          echo "✅ No secrets in code"
+      
+      # Check for client-side prompt exposure
+      - name: Check prompt protection
+        run: |
+          # Ensure prompts.ts is not imported in client components
+          if grep -rn "from.*prompts" --include="*.tsx" src/app/; then
+            echo "⚠️ Warning: prompts.ts may be imported in client code"
+          fi
+          echo "✅ Prompt protection check complete"
+      
+      # Dependency audit
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
+      
+      # Type checking
+      - name: Type check
+        run: pnpm tsc --noEmit
+      
+      # Lint
+      - name: Lint
+        run: pnpm lint
+
+  # Notify on security issues
+  notify:
+    runs-on: ubuntu-latest
+    needs: security
+    if: failure()
+    
+    steps:
+      - name: Notify security failure
+        run: |
+          echo "Security checks failed - review required"
+          # Add Slack/Discord notification here
