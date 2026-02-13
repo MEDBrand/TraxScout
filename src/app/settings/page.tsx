@@ -1,101 +1,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase-browser';
-import { storeApiKey, deleteApiKey } from '@/app/actions/api-keys';
-import { ConnectedAccounts } from '@/components/ConnectedAccounts';
 
 const GENRES = [
   'Tech House', 'Deep House', 'Afro House', 'Minimal / Deep Tech',
   'Melodic House & Techno', 'House', 'Techno', 'Progressive House',
 ];
 
-const CAMELOT_KEYS = [
-  '1A', '1B', '2A', '2B', '3A', '3B', '4A', '4B',
-  '5A', '5B', '6A', '6B', '7A', '7B', '8A', '8B',
-  '9A', '9B', '10A', '10B', '11A', '11B', '12A', '12B',
-];
-
-interface ApiKeyData {
-  id: string;
-  provider: 'anthropic' | 'openai';
-  keyHint: string;
-  createdAt: string;
+interface UserInfo {
+  user: { id: string; email: string } | null;
+  profile: { tier: string; subscriptionStatus: string } | null;
 }
 
 export default function SettingsPage() {
-  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
-  const router = useRouter();
-
-  // Preferences
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedGenres, setSelectedGenres] = useState<string[]>(['Tech House', 'Deep House']);
   const [bpmMin, setBpmMin] = useState(122);
   const [bpmMax, setBpmMax] = useState(128);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [labels, setLabels] = useState('Solid Grooves, Toolroom, Defected');
-  const [digestTime, setDigestTime] = useState('09:00');
-  const [digestFrequency, setDigestFrequency] = useState<'daily' | 'weekly'>('daily');
-  const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
-
-  // API Keys
-  const [apiKeys, setApiKeys] = useState<ApiKeyData[]>([]);
-  const [showAddKey, setShowAddKey] = useState(false);
-  const [newKeyProvider, setNewKeyProvider] = useState<'anthropic' | 'openai'>('anthropic');
-  const [newApiKey, setNewApiKey] = useState('');
-  const [addingKey, setAddingKey] = useState(false);
-
-  // Subscription
-  const [loadingPortal, setLoadingPortal] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login');
-      return;
-    }
-
-    async function loadPreferences() {
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (data) {
-        setSelectedGenres(data.genres || []);
-        setBpmMin(data.bpm_min || 122);
-        setBpmMax(data.bpm_max || 128);
-        setSelectedKeys(data.keys || []);
-        setLabels(data.labels?.join(', ') || '');
-        setDigestTime(data.digest_time || '09:00');
-        setDigestFrequency(data.digest_frequency || 'daily');
-      }
-
-      // Load API keys
-      const { data: keysData } = await supabase
-        .from('api_keys')
-        .select('id, provider, key_hint, created_at')
-        .eq('user_id', user.id);
-
-      if (keysData) {
-        setApiKeys(keysData.map(k => ({
-          id: k.id,
-          provider: k.provider,
-          keyHint: k.key_hint,
-          createdAt: k.created_at,
-        })));
-      }
-    }
-
-    if (user) {
-      loadPreferences();
-    }
-  }, [user, authLoading, router]);
+    const timeout = setTimeout(() => setLoading(false), 8000);
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        clearTimeout(timeout);
+        setUserInfo(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
+    return () => clearTimeout(timeout);
+  }, []);
 
   const toggleGenre = (genre: string) => {
     setSelectedGenres(prev =>
@@ -103,272 +42,105 @@ export default function SettingsPage() {
     );
   };
 
-  const toggleKey = (key: string) => {
-    setSelectedKeys(prev =>
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
-    );
-  };
-
-  const handleSave = async () => {
-    if (!user) return;
-
-    setSaving(true);
-    setSaveMessage('');
-
-    const labelsArray = labels.split(',').map(l => l.trim()).filter(Boolean);
-
-    const { error } = await supabase
-      .from('preferences')
-      .upsert({
-        user_id: user.id,
-        genres: selectedGenres,
-        bpm_min: bpmMin,
-        bpm_max: bpmMax,
-        keys: selectedKeys,
-        labels: labelsArray,
-        digest_time: digestTime,
-        digest_frequency: digestFrequency,
-      });
-
-    setSaving(false);
-
-    if (error) {
-      setSaveMessage('Failed to save. Please try again.');
-    } else {
-      setSaveMessage('Settings saved!');
-      setTimeout(() => setSaveMessage(''), 3000);
-    }
-  };
-
-  const handleAddApiKey = async () => {
-    if (!user || !newApiKey) return;
-
-    setAddingKey(true);
-
-    const result = await storeApiKey(newKeyProvider, newApiKey);
-
-    setAddingKey(false);
-
-    if ('error' in result) {
-      console.error('Failed to store API key:', result.error);
-      return;
-    }
-
-    setApiKeys(prev => [...prev, {
-      id: result.id,
-      provider: result.provider,
-      keyHint: result.keyHint,
-      createdAt: new Date().toISOString(),
-    }]);
-    setNewApiKey('');
-    setShowAddKey(false);
-  };
-
-  const handleDeleteApiKey = async (keyId: string) => {
-    if (!user) return;
-
-    const result = await deleteApiKey(keyId);
-    if ('error' in result) {
-      console.error('Failed to delete API key:', result.error);
-      return;
-    }
-
-    setApiKeys(prev => prev.filter(k => k.id !== keyId));
-  };
-
-  const handleManageSubscription = async () => {
-    setLoadingPortal(true);
-
-    try {
-      const { data: { session: authSession } } = await supabase.auth.getSession();
-      const response = await fetch('/api/portal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authSession?.access_token}`,
-        },
-      });
-
-      const { url, error } = await response.json();
-
-      if (error) {
-        console.error('Portal error:', error);
-      } else if (url) {
-        window.location.href = url;
-      }
-    } catch (error) {
-      console.error('Failed to open portal:', error);
-    } finally {
-      setLoadingPortal(false);
-    }
-  };
-
-  if (authLoading) {
+  if (loading) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-[#A1A1AA]">Loading...</div>
+        <div className="text-[#A1A1AA]">Loading settings...</div>
       </main>
     );
   }
 
-  return (
-    <main className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-white/5 p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link href="/dashboard" className="text-xl font-bold flex items-center gap-2">
-            <span className="text-[#A1A1AA]">&#x2190;</span>
-            <span className="text-[#7C3AED]">TRAXSCOUT</span>
+  if (!userInfo?.user) {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-[#A1A1AA] mb-4">Please log in to access settings</p>
+          <Link href="/login" className="bg-[#7C3AED] hover:bg-[#6D28D9] px-6 py-3 rounded-lg font-semibold transition inline-block">
+            Go to Login
           </Link>
         </div>
-      </header>
+      </main>
+    );
+  }
 
-      <div className="container mx-auto p-4 max-w-2xl">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+  const tier = userInfo.profile?.tier || 'free';
+  const isPro = tier === 'pro' || tier === 'elite';
 
-        {/* Subscription Section */}
-        <section id="subscription" className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-          <h2 className="text-lg font-bold mb-4">Subscription</h2>
+  return (
+    <main className="min-h-screen bg-black text-white">
+      <nav className="border-b border-white/10 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-4">
+          <Link href="/dashboard" className="text-[#A1A1AA] hover:text-white transition">← TRAXSCOUT</Link>
+        </div>
+      </nav>
 
-          <div className="flex items-center justify-between mb-4">
+      <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
+        <h1 className="text-2xl font-bold">Settings</h1>
+
+        {/* Subscription */}
+        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Subscription</h2>
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">
-                  {profile?.tier === 'pro' ? 'Pro Plan' : profile?.tier === 'basic' ? 'Basic Plan' : 'Free'}
-                </span>
-                {profile?.tier === 'pro' && (
-                  <span className="bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded text-xs font-medium">PRO</span>
-                )}
-              </div>
-              <div className="text-sm text-[#A1A1AA]">
-                {profile?.subscriptionStatus === 'trialing' && 'Free trial active'}
-                {profile?.subscriptionStatus === 'active' && 'Active subscription'}
-                {profile?.subscriptionStatus === 'past_due' && 'Payment past due'}
-                {profile?.subscriptionStatus === 'canceled' && 'Subscription canceled'}
-              </div>
+              <span className="capitalize font-medium">{tier}</span>
             </div>
-
-            <div className="text-right">
-              <div className="text-2xl font-bold text-[#F59E0B]">
-                ${profile?.tier === 'pro' ? '38.88' : profile?.tier === 'basic' ? '19.88' : '0'}
-                <span className="text-sm text-[#A1A1AA] font-normal">/mo</span>
-              </div>
+            <div className="text-[#F59E0B] text-xl font-bold">
+              {tier === 'free' ? '$0' : tier === 'basic' ? '$19.88' : tier === 'pro' ? '$38.88' : '$68.88'}/mo
             </div>
           </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleManageSubscription}
-              disabled={loadingPortal}
-              className="flex-1 bg-[#141414] hover:bg-white/10 py-2 rounded-lg font-semibold transition"
-            >
-              {loadingPortal ? 'Loading...' : 'Manage Subscription'}
-            </button>
-
-            {profile?.tier !== 'pro' && (
-              <Link
-                href="/signup?tier=pro"
-                className="flex-1 bg-[#F59E0B] hover:bg-[#d97706] py-2 rounded-lg font-semibold transition text-center"
-              >
-                Upgrade to Pro
-              </Link>
-            )}
-          </div>
+          {tier === 'free' && (
+            <div className="bg-[#7C3AED]/10 border border-[#7C3AED]/30 rounded-lg p-3 text-sm text-[#A1A1AA]">
+              Upgrade to Pro to connect Beatport, Traxsource, and promo pools.
+            </div>
+          )}
         </section>
 
         {/* Connected Accounts */}
-        <ConnectedAccounts />
-
-        {/* API Keys Section (Pro only) */}
-        {profile?.tier === 'pro' && (
-          <section className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h2 className="text-lg font-bold">API Keys</h2>
-                <p className="text-sm text-[#A1A1AA]">For AI-powered features</p>
+        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-2">Connected Accounts</h2>
+          <p className="text-[#A1A1AA] text-sm mb-4">Link your accounts to see everything in one place.</p>
+          
+          {[
+            { name: 'Beatport', color: '#00FF00', desc: 'Your Beatport purchases, charts, and wishlist.' },
+            { name: 'Traxsource', color: '#4A90D9', desc: 'Your Traxsource purchases, crate, and download queue.' },
+            { name: 'Inflyte', color: '#9B59B6', desc: 'Your promo pool inbox. Unreleased tracks from labels.' },
+            { name: 'Trackstack', color: '#F39C12', desc: 'Your Flow inbox. Demos and promos from producers.' },
+          ].map(platform => (
+            <div key={platform.name} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: platform.color }} />
+                <div>
+                  <span className="font-medium">{platform.name}</span>
+                  {!isPro && <span className="ml-2 text-xs bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded">PRO</span>}
+                  <p className="text-[#A1A1AA] text-xs">{platform.desc}</p>
+                </div>
               </div>
               <button
-                onClick={() => setShowAddKey(!showAddKey)}
-                className="text-[#7C3AED] hover:text-[#8b5cf6] transition"
+                disabled={!isPro}
+                className={`text-sm px-4 py-1.5 rounded-lg transition ${
+                  isPro
+                    ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white'
+                    : 'text-[#A1A1AA] cursor-not-allowed'
+                }`}
               >
-                + Add Key
+                {isPro ? 'Connect' : 'Upgrade'}
               </button>
             </div>
-
-            {showAddKey && (
-              <div className="bg-[#141414] rounded-lg p-4 mb-4">
-                <div className="flex gap-3 mb-3">
-                  <select
-                    value={newKeyProvider}
-                    onChange={e => setNewKeyProvider(e.target.value as 'anthropic' | 'openai')}
-                    className="p-2 rounded bg-[#141414] border border-white/10"
-                  >
-                    <option value="anthropic">Anthropic (Claude)</option>
-                    <option value="openai">OpenAI</option>
-                  </select>
-                  <input
-                    type="password"
-                    placeholder="sk-..."
-                    value={newApiKey}
-                    onChange={e => setNewApiKey(e.target.value)}
-                    className="flex-1 p-2 rounded bg-[#141414] border border-white/10"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleAddApiKey}
-                    disabled={addingKey || !newApiKey}
-                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] rounded font-medium transition disabled:opacity-50"
-                  >
-                    {addingKey ? 'Adding...' : 'Add'}
-                  </button>
-                  <button
-                    onClick={() => { setShowAddKey(false); setNewApiKey(''); }}
-                    className="px-4 py-2 bg-[#1A1A1A] hover:bg-white/15 rounded transition"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {apiKeys.length === 0 ? (
-              <div className="text-[#A1A1AA] text-sm">
-                No API keys added. Add your Anthropic or OpenAI key to enable AI features.
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {apiKeys.map(key => (
-                  <div key={key.id} className="flex items-center justify-between p-3 bg-[#141414] rounded-lg">
-                    <div>
-                      <span className="font-medium capitalize">{key.provider}</span>
-                      <span className="text-[#A1A1AA] ml-2">****{key.keyHint}</span>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteApiKey(key.id)}
-                      className="text-red-400 hover:text-red-300 transition"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+          ))}
+        </section>
 
         {/* Genres */}
-        <section className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-          <h2 className="text-lg font-bold mb-4">Genres</h2>
+        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Genres</h2>
           <div className="flex flex-wrap gap-2">
             {GENRES.map(genre => (
               <button
                 key={genre}
                 onClick={() => toggleGenre(genre)}
-                className={`px-4 py-2 rounded-lg transition ${
+                className={`px-4 py-2 rounded-full text-sm transition ${
                   selectedGenres.includes(genre)
                     ? 'bg-[#7C3AED] text-white'
-                    : 'bg-[#141414] text-[#D4D4D8] hover:bg-white/10'
+                    : 'bg-white/10 text-[#A1A1AA] hover:bg-white/20'
                 }`}
               >
                 {genre}
@@ -378,114 +150,36 @@ export default function SettingsPage() {
         </section>
 
         {/* BPM Range */}
-        <section className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-          <h2 className="text-lg font-bold mb-4">BPM Range</h2>
-          <div className="flex items-center gap-4">
+        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-4">BPM Range</h2>
+          <div className="flex items-center gap-3">
             <input
               type="number"
               value={bpmMin}
               onChange={e => setBpmMin(Number(e.target.value))}
-              className="w-24 p-2 rounded bg-[#141414] border border-white/10"
+              className="w-20 p-2 rounded-lg bg-white/10 border border-white/20 text-white text-center"
             />
             <span className="text-[#A1A1AA]">to</span>
             <input
               type="number"
               value={bpmMax}
               onChange={e => setBpmMax(Number(e.target.value))}
-              className="w-24 p-2 rounded bg-[#141414] border border-white/10"
+              className="w-20 p-2 rounded-lg bg-white/10 border border-white/20 text-white text-center"
             />
             <span className="text-[#A1A1AA]">BPM</span>
           </div>
         </section>
 
-        {/* Key Filter */}
-        <section className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-          <h2 className="text-lg font-bold mb-2">Key Filter (Camelot)</h2>
-          <p className="text-[#A1A1AA] text-sm mb-4">Leave empty to show all keys</p>
-          <div className="grid grid-cols-6 gap-2">
-            {CAMELOT_KEYS.map(key => (
-              <button
-                key={key}
-                onClick={() => toggleKey(key)}
-                className={`p-2 rounded text-sm font-mono transition ${
-                  selectedKeys.includes(key)
-                    ? 'bg-[#7C3AED] text-white'
-                    : 'bg-[#141414] text-[#D4D4D8] hover:bg-white/10'
-                }`}
-              >
-                {key}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Labels */}
-        <section className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-          <h2 className="text-lg font-bold mb-4">Favorite Labels</h2>
-          <textarea
-            value={labels}
-            onChange={e => setLabels(e.target.value)}
-            placeholder="Solid Grooves, Toolroom, Defected..."
-            className="w-full p-3 rounded bg-[#141414] border border-white/10 h-24"
-          />
-          <p className="text-[#A1A1AA] text-sm mt-2">Comma-separated</p>
-        </section>
-
-        {/* Digest Settings */}
-        <section className="bg-[#0A0A0A] rounded-xl p-6 mb-6 border border-white/10">
-          <h2 className="text-lg font-bold mb-4">Email Digest</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-[#A1A1AA] mb-2">Frequency</label>
-              <select
-                value={digestFrequency}
-                onChange={e => setDigestFrequency(e.target.value as 'daily' | 'weekly')}
-                className="w-full p-2 rounded bg-[#141414] border border-white/10"
-              >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm text-[#A1A1AA] mb-2">Time</label>
-              <input
-                type="time"
-                value={digestTime}
-                onChange={e => setDigestTime(e.target.value)}
-                className="w-full p-2 rounded bg-[#141414] border border-white/10"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Save Button */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-[#1A1A1A] py-3 rounded-lg font-semibold transition"
-          >
-            {saving ? 'Saving...' : 'Save Settings'}
-          </button>
-          {saveMessage && (
-            <span className={`text-sm ${saveMessage.includes('Failed') ? 'text-red-400' : 'text-green-400'}`}>
-              {saveMessage}
-            </span>
-          )}
-        </div>
-
         {/* Account */}
-        <section className="mt-8 pt-8 border-t border-white/10">
-          <h2 className="text-lg font-bold mb-4 text-[#A1A1AA]">Account</h2>
-          <p className="text-[#A1A1AA] text-sm mb-4">
-            Signed in as {user?.email}
-          </p>
-          <button
-            onClick={() => supabase.auth.signOut().then(() => router.push('/'))}
-            className="text-red-400 hover:text-red-300 transition"
+        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Account</h2>
+          <p className="text-[#A1A1AA] text-sm">{userInfo.user.email}</p>
+          <a
+            href="/api/auth/logout"
+            className="mt-4 inline-block text-sm text-red-400 hover:text-red-300 transition"
           >
-            Sign Out
-          </button>
+            Sign out
+          </a>
         </section>
       </div>
     </main>
