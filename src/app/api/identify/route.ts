@@ -4,38 +4,17 @@
 
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import fs from 'fs';
-
-// ACRCloud credentials
-const ACRCLOUD_CREDS_PATH = '/Users/assistant/.openclaw/secrets/acrcloud-credentials';
-const AUDD_KEY_PATH = '/Users/assistant/.openclaw/secrets/audd-api-key';
 
 function loadACRCloudCreds(): { accessKey: string; secretKey: string; host: string } | null {
-  try {
-    const raw = fs.readFileSync(ACRCLOUD_CREDS_PATH, 'utf8');
-    const creds: Record<string, string> = {};
-    for (const line of raw.split('\n')) {
-      if (line.includes('=')) {
-        const [key, val] = line.trim().split('=', 2);
-        creds[key] = val;
-      }
-    }
-    return {
-      accessKey: creds.ACCESS_KEY,
-      secretKey: creds.SECRET_KEY,
-      host: creds.HOST,
-    };
-  } catch {
-    return null;
-  }
+  const accessKey = process.env.ACRCLOUD_ACCESS_KEY;
+  const secretKey = process.env.ACRCLOUD_SECRET_KEY;
+  const host = process.env.ACRCLOUD_HOST || 'identify-us-west-2.acrcloud.com';
+  if (!accessKey || !secretKey) return null;
+  return { accessKey, secretKey, host };
 }
 
 function loadAuddKey(): string | null {
-  try {
-    return fs.readFileSync(AUDD_KEY_PATH, 'utf8').trim();
-  } catch {
-    return null;
-  }
+  return process.env.AUDD_API_KEY || null;
 }
 
 interface IdentifyResult {
