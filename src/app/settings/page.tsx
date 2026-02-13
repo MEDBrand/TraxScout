@@ -101,29 +101,33 @@ export default function SettingsPage() {
           <p className="text-[#A1A1AA] text-sm mb-4">Link your accounts to see everything in one place.</p>
           
           {[
-            { name: 'Beatport', color: '#00FF00', desc: 'Your Beatport purchases, charts, and wishlist.' },
-            { name: 'Traxsource', color: '#4A90D9', desc: 'Your Traxsource purchases, crate, and download queue.' },
-            { name: 'Inflyte', color: '#9B59B6', desc: 'Your promo pool inbox. Unreleased tracks from labels.' },
-            { name: 'Trackstack', color: '#F39C12', desc: 'Your Flow inbox. Demos and promos from producers.' },
+            { name: 'Beatport', color: '#94FC13', desc: 'Your Beatport purchases, charts, and wishlist.', tier: 'basic' },
+            { name: 'Traxsource', color: '#4A90D9', desc: 'Your Traxsource purchases, crate, and download queue.', tier: 'basic' },
+            { name: 'Bandcamp', color: '#1DA0C3', desc: 'Your Bandcamp collection, wishlist, and followed artists.', tier: 'basic' },
+            { name: 'SoundCloud', color: '#FF5500', desc: 'Your SoundCloud likes, reposts, and followed artists.', tier: 'basic' },
+            { name: 'Inflyte', color: '#9B59B6', desc: 'Your promo pool inbox. Unreleased tracks from labels.', tier: 'pro' },
+            { name: 'Trackstack', color: '#00D4AA', desc: 'Your Flow inbox. Demos and promos from producers.', tier: 'pro' },
+            { name: 'Promo Box', color: '#F97316', desc: 'Your promo pool deliveries from labels and distributors.', tier: 'pro' },
+            { name: 'Label Worx', color: '#EF4444', desc: 'Your Label Worx promo pool and pre-release tracks.', tier: 'pro' },
           ].map(platform => (
             <div key={platform.name} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
               <div className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: platform.color }} />
                 <div>
                   <span className="font-medium">{platform.name}</span>
-                  {!isPro && <span className="ml-2 text-xs bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded">PRO</span>}
+                  {platform.tier === 'pro' && !isPro && <span className="ml-2 text-xs bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded">PRO</span>}
                   <p className="text-[#A1A1AA] text-xs">{platform.desc}</p>
                 </div>
               </div>
               <button
-                disabled={!isPro}
+                disabled={platform.tier === 'pro' && !isPro}
                 className={`text-sm px-4 py-1.5 rounded-lg transition ${
-                  isPro
+                  platform.tier === 'basic' || isPro
                     ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white'
                     : 'text-[#A1A1AA] cursor-not-allowed'
                 }`}
               >
-                {isPro ? 'Connect' : 'Upgrade'}
+                {platform.tier === 'basic' || isPro ? 'Connect' : 'Upgrade'}
               </button>
             </div>
           ))}

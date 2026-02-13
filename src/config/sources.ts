@@ -79,6 +79,72 @@ export const SOURCE_REGISTRY: Record<string, SourceConfig> = {
     connectInstructions: 'Enter your Trackstack login to sync demos and promos from your inbox.',
   },
 
+  bandcamp: {
+    id: 'bandcamp',
+    name: 'Bandcamp',
+    description: 'Your Bandcamp collection, wishlist, and followed artists.',
+    status: 'active',
+    authType: 'credentials',
+    tier: ['basic', 'pro', 'elite'],
+    rateLimit: { requestsPerMinute: 15, requestsPerDay: 2000 },
+    features: {
+      search: true,
+      browse: true,
+      preview: true,
+      affiliate: false,
+    },
+    connectInstructions: 'Enter your Bandcamp login to sync your collection and wishlist.',
+  },
+
+  soundcloud: {
+    id: 'soundcloud',
+    name: 'SoundCloud',
+    description: 'Your SoundCloud likes, reposts, and followed artists.',
+    status: 'active',
+    authType: 'oauth',
+    tier: ['basic', 'pro', 'elite'],
+    rateLimit: { requestsPerMinute: 20, requestsPerDay: 3000 },
+    features: {
+      search: true,
+      browse: true,
+      preview: true,
+      affiliate: false,
+    },
+    connectInstructions: 'Connect your SoundCloud account to sync likes and discover new tracks from artists you follow.',
+  },
+
+  'promo-box': {
+    id: 'promo-box',
+    name: 'Promo Box',
+    description: 'Your promo pool deliveries from labels and distributors.',
+    status: 'active',
+    authType: 'credentials',
+    tier: ['pro', 'elite'],
+    features: {
+      search: false,
+      browse: true,
+      preview: true,
+      affiliate: false,
+    },
+    connectInstructions: 'Enter your Promo Box login to sync promo deliveries.',
+  },
+
+  'label-worx': {
+    id: 'label-worx',
+    name: 'Label Worx',
+    description: 'Your Label Worx promo pool and pre-release tracks.',
+    status: 'active',
+    authType: 'credentials',
+    tier: ['pro', 'elite'],
+    features: {
+      search: false,
+      browse: true,
+      preview: true,
+      affiliate: false,
+    },
+    connectInstructions: 'Enter your Label Worx credentials to sync your promo pool.',
+  },
+
   trackscout: {
     id: 'trackscout',
     name: 'Traxscout Picks',
