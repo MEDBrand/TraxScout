@@ -21,13 +21,16 @@ function LoginContent() {
     setError('');
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Race against a 10s timeout
+      const result = await Promise.race([
+        supabase.auth.signInWithPassword({ email, password }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Login timed out. Check your connection and try again.')), 10000)
+        ),
+      ]);
 
-      if (authError) {
-        setError(authError.message);
+      if (result.error) {
+        setError(result.error.message);
         setLoading(false);
         return;
       }
