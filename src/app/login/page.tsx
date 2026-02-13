@@ -21,18 +21,36 @@ function LoginContent() {
     setError('');
 
     try {
-      // Race against a 10s timeout
-      const result = await Promise.race([
-        supabase.auth.signInWithPassword({ email, password }),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Login timed out. Check your connection and try again.')), 10000)
-        ),
-      ]);
+      // Direct fetch to avoid Supabase JS client hanging in some browsers
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-      if (result.error) {
-        setError(result.error.message);
+      const res = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.msg || data.error || 'Invalid email or password');
         setLoading(false);
         return;
+      }
+
+      // Set session in Supabase client
+      try {
+        await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+      } catch {
+        localStorage.setItem('sb-access-token', data.access_token);
+        localStorage.setItem('sb-refresh-token', data.refresh_token);
       }
 
       router.push(redirect);

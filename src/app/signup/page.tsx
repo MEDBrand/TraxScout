@@ -64,27 +64,51 @@ function SignupForm() {
     setError('');
 
     try {
-      // Create Supabase user
-      const { data: authData, error: authError } = await signUp(email, password);
+      // Direct fetch to avoid Supabase JS client hanging
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-      if (authError) {
-        setError(authError.message);
+      const signupRes = await fetch(`${supabaseUrl}/auth/v1/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          data: { genres: selectedGenres },
+        }),
+      });
+
+      const signupData = await signupRes.json();
+
+      if (!signupRes.ok) {
+        setError(signupData.msg || signupData.error || 'Signup failed');
         setLoading(false);
         return;
       }
 
-      if (authData.user) {
-        // Save preferences
-        await supabase.from('preferences').upsert({
-          user_id: authData.user.id,
-          genres: selectedGenres,
-          bpm_min: 120,
-          bpm_max: 130,
-        });
-
-        // Stripe not configured yet — skip checkout, go to dashboard
-        router.push('/dashboard?welcome=true');
+      // If email confirmation is required, tell the user
+      if (!signupData.access_token) {
+        setError('Check your email for a confirmation link, then come back and log in.');
+        setLoading(false);
+        return;
       }
+
+      // Auto-login: set session in Supabase client
+      try {
+        await supabase.auth.setSession({
+          access_token: signupData.access_token,
+          refresh_token: signupData.refresh_token,
+        });
+      } catch {
+        // If setSession fails, store tokens manually
+        localStorage.setItem('sb-access-token', signupData.access_token);
+        localStorage.setItem('sb-refresh-token', signupData.refresh_token);
+      }
+
+      router.push('/dashboard?welcome=true');
     } catch (err) {
       setError('Something went wrong. Please try again.');
       setLoading(false);
