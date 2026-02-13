@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-// AuthProvider moved to protected routes only — importing supabase globally crashes hydration
-// import { AuthProvider } from "@/lib/auth-context";
-import { ToastProvider } from "@/components/ui/Toast";
+// AuthProvider and ToastProvider moved to protected routes only
+// Global layout has zero client JS to prevent hydration crashes
 import "./globals.css";
 
 const geistSans = Geist({
@@ -64,13 +63,11 @@ export const metadata: Metadata = {
   },
 };
 
-// Service Worker Registration Script
+// Service Worker — disabled until launch to prevent stale caching
 const swScript = `
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('[SW] Registered:', reg.scope))
-        .catch(err => console.warn('[SW] Registration failed:', err));
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (var r of registrations) { r.unregister(); }
     });
   }
 `;
@@ -94,9 +91,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        {children}
       </body>
     </html>
   );
