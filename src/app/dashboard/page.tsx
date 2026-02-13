@@ -16,6 +16,7 @@ interface Track {
   store_url?: string;
   artwork_url?: string;
   preview_embed_url?: string;
+  audio_id?: boolean;
 }
 
 interface UserInfo {
@@ -349,6 +350,13 @@ function TrackRow({
         <div className="hidden sm:flex flex-col items-center w-16 flex-shrink-0">
           <span className="text-sm font-medium">{track.bpm}</span>
           <span className="text-[10px] text-[#71717A]">BPM</span>
+        </div>
+      )}
+
+      {/* Audio ID badge */}
+      {track.audio_id && (
+        <div className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 flex-shrink-0 bg-[#F59E0B]/10 text-[#F59E0B]">
+          🎤 Audio ID
         </div>
       )}
 
