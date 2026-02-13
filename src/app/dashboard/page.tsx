@@ -15,6 +15,7 @@ interface Track {
   key?: string;
   store_url?: string;
   artwork_url?: string;
+  preview_embed_url?: string;
 }
 
 interface UserInfo {
@@ -23,6 +24,14 @@ interface UserInfo {
 }
 
 type Tab = 'all' | 'new' | 'saved';
+
+const SOURCE_COLORS: Record<string, string> = {
+  beatport: '#94FC13',
+  traxsource: '#4A90D9',
+  inflyte: '#9B59B6',
+  trackstack: '#00D4AA',
+  trackscout: '#7C3AED',
+};
 
 export default function DashboardPage() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -33,8 +42,8 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [genreFilter, setGenreFilter] = useState('');
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
-  // Fetch user info
   useEffect(() => {
     const timeout = setTimeout(() => {
       setLoading(false);
@@ -45,11 +54,8 @@ export default function DashboardPage() {
       .then(res => res.json())
       .then(data => {
         clearTimeout(timeout);
-        if (data.user) {
-          setUserInfo(data);
-        } else {
-          setError('Not logged in');
-        }
+        if (data.user) setUserInfo(data);
+        else setError('Not logged in');
         setLoading(false);
       })
       .catch(() => {
@@ -57,14 +63,11 @@ export default function DashboardPage() {
         setError('Could not load your session');
         setLoading(false);
       });
-
     return () => clearTimeout(timeout);
   }, []);
 
-  // Fetch tracks + saved crate
   useEffect(() => {
     if (!userInfo?.user) return;
-
     setTracksLoading(true);
     Promise.all([
       fetch('/api/tracks').then(r => r.json()),
@@ -81,14 +84,11 @@ export default function DashboardPage() {
 
   const toggleSave = useCallback(async (trackId: string) => {
     const was = savedIds.has(trackId);
-    // Optimistic update
     setSavedIds(prev => {
       const next = new Set(prev);
-      if (was) next.delete(trackId);
-      else next.add(trackId);
+      if (was) next.delete(trackId); else next.add(trackId);
       return next;
     });
-
     try {
       await fetch('/api/crate', {
         method: 'POST',
@@ -96,29 +96,23 @@ export default function DashboardPage() {
         body: JSON.stringify({ trackId }),
       });
     } catch {
-      // Revert on error
       setSavedIds(prev => {
         const next = new Set(prev);
-        if (was) next.add(trackId);
-        else next.delete(trackId);
+        if (was) next.add(trackId); else next.delete(trackId);
         return next;
       });
     }
   }, [savedIds]);
 
-  // Derive genres for filter dropdown
   const allGenres = [...new Set(tracks.map(t => t.genre).filter(Boolean))] as string[];
 
-  // Filter tracks
   const filtered = tracks.filter(t => {
     if (genreFilter && t.genre !== genreFilter) return false;
     if (activeTab === 'saved' && !savedIds.has(t.id)) return false;
-    // 'new' = last 24h (score-based heuristic — tracks with no save)
     if (activeTab === 'new' && savedIds.has(t.id)) return false;
     return true;
   });
 
-  // Stats
   const todayCount = tracks.length;
   const newCount = tracks.filter(t => !savedIds.has(t.id)).length;
   const savedCount = savedIds.size;
@@ -126,7 +120,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-[#A1A1AA]">Loading dashboard...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+          <p className="text-[#71717A] text-sm">Loading your picks...</p>
+        </div>
       </main>
     );
   }
@@ -134,13 +131,12 @@ export default function DashboardPage() {
   if (error || !userInfo?.user) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-[#A1A1AA] mb-4">{error || 'Please log in'}</p>
-          <Link
-            href="/login"
-            className="bg-[#7C3AED] hover:bg-[#6D28D9] px-6 py-3 rounded-lg font-semibold transition inline-block"
-          >
-            Go to Login
+        <div className="text-center max-w-sm">
+          <div className="text-5xl mb-6">🔒</div>
+          <h1 className="text-xl font-bold mb-2">Session expired</h1>
+          <p className="text-[#71717A] mb-6">{error || 'Please log in to continue'}</p>
+          <Link href="/login" className="bg-[#7C3AED] hover:bg-[#6D28D9] px-8 py-3 rounded-xl font-semibold transition inline-block">
+            Sign In
           </Link>
         </div>
       </main>
@@ -150,48 +146,62 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Nav */}
-      <nav className="border-b border-white/10 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold tracking-tight">
+      <nav className="border-b border-white/[0.06] bg-black/90 backdrop-blur-2xl sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+          <Link href="/" className="text-lg font-bold tracking-tight text-[#7C3AED]">
             TRAXSCOUT
           </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-[#A1A1AA]">{userInfo.user.email}</span>
-            <Link href="/settings" className="text-sm text-[#A1A1AA] hover:text-white transition">
+          <div className="flex items-center gap-3">
+            <Link href="/settings" className="text-sm text-[#71717A] hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-white/5">
               Settings
             </Link>
-            <a href="/api/auth/logout" className="text-sm text-[#A1A1AA] hover:text-white transition">
+            <a href="/api/auth/logout" className="text-sm text-[#71717A] hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-white/5">
               Logout
             </a>
           </div>
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Stats Bar */}
-        <div className="flex gap-6 mb-8">
-          <StatBadge label="Today's Picks" value={todayCount} />
-          <StatBadge label="New" value={newCount} color="#7C3AED" />
-          <StatBadge label="Saved" value={savedCount} color="#F59E0B" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        {/* Welcome + Connect Banner */}
+        <div className="bg-gradient-to-r from-[#7C3AED]/10 to-transparent border border-[#7C3AED]/20 rounded-2xl px-5 py-4 mb-6 flex items-center justify-between">
+          <div>
+            <span className="text-sm text-[#A1A1AA]">Connect </span>
+            <span className="text-sm text-white font-medium">Beatport, Traxsource</span>
+            <span className="text-sm text-[#A1A1AA]"> to get more personalized picks</span>
+          </div>
+          <Link href="/settings" className="text-sm text-[#7C3AED] font-medium hover:underline whitespace-nowrap">
+            Connect accounts →
+          </Link>
         </div>
 
-        {/* Tier Badge */}
-        <div className="inline-block bg-[#7C3AED]/20 border border-[#7C3AED]/30 rounded-full px-4 py-1 text-sm text-[#7C3AED] mb-6">
-          {userInfo.profile?.tier || 'Free'} Plan
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-4">
+            <div className="text-3xl font-bold">{todayCount}</div>
+            <div className="text-xs text-[#71717A] mt-1">Today&apos;s picks (20 max)</div>
+          </div>
+          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-4">
+            <div className="text-3xl font-bold text-[#7C3AED]">{newCount}</div>
+            <div className="text-xs text-[#71717A] mt-1">New</div>
+          </div>
+          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-4">
+            <div className="text-3xl font-bold text-[#F59E0B]">{savedCount}</div>
+            <div className="text-xs text-[#71717A] mt-1">Saved</div>
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          {/* Tabs */}
-          <div className="flex bg-[#0A0A0A] rounded-lg p-1 border border-white/10">
+        {/* Filters Row */}
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <div className="flex bg-[#0A0A0A] rounded-xl p-1 border border-white/[0.06]">
             {(['all', 'new', 'saved'] as Tab[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition capitalize ${
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition capitalize ${
                   activeTab === tab
-                    ? 'bg-[#7C3AED] text-white'
-                    : 'text-[#A1A1AA] hover:text-white'
+                    ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/20'
+                    : 'text-[#71717A] hover:text-white'
                 }`}
               >
                 {tab}
@@ -199,48 +209,62 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Genre dropdown */}
-          <select
-            value={genreFilter}
-            onChange={e => setGenreFilter(e.target.value)}
-            className="bg-[#0A0A0A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white appearance-none cursor-pointer"
-          >
-            <option value="">All Genres</option>
-            {allGenres.map(g => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
+          {allGenres.length > 1 && (
+            <select
+              value={genreFilter}
+              onChange={e => setGenreFilter(e.target.value)}
+              className="bg-[#0A0A0A] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white cursor-pointer focus:outline-none focus:border-[#7C3AED]/50"
+            >
+              <option value="">All Genres</option>
+              {allGenres.map(g => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+          )}
+
+          <div className="ml-auto text-sm text-[#71717A]">
+            {filtered.length} track{filtered.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+
+        {/* Track Header */}
+        <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 py-2 text-xs text-[#71717A] uppercase tracking-wider border-b border-white/[0.06] mb-1">
+          <div>Track</div>
+          <div className="w-20 text-center">BPM</div>
+          <div className="w-20 text-center">Score</div>
+          <div className="w-10" />
         </div>
 
         {/* Track Feed */}
         {tracksLoading ? (
-          <div className="text-center py-20 text-[#A1A1AA]">Loading tracks...</div>
+          <div className="space-y-2 py-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-[#0A0A0A] rounded-xl h-20 animate-pulse border border-white/[0.04]" />
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-12 text-center">
-            <div className="text-4xl mb-4">🎵</div>
-            <h2 className="text-xl font-semibold mb-2">No tracks yet</h2>
-            <p className="text-[#A1A1AA] mb-6 max-w-md mx-auto">
+          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-16 text-center mt-4">
+            <div className="text-5xl mb-5">{activeTab === 'saved' ? '💛' : '🎵'}</div>
+            <h2 className="text-lg font-semibold mb-2">
+              {activeTab === 'saved' ? 'No saved tracks yet' : 'No tracks found'}
+            </h2>
+            <p className="text-[#71717A] text-sm max-w-md mx-auto">
               {activeTab === 'saved'
-                ? 'Save tracks by tapping the heart icon.'
-                : 'Connect your accounts in Settings to start getting curated picks.'}
+                ? 'Tap the heart on any track to save it to your crate.'
+                : 'Connect your accounts in Settings to get personalized picks.'}
             </p>
-            {activeTab !== 'saved' && (
-              <Link
-                href="/settings"
-                className="bg-[#7C3AED] hover:bg-[#6D28D9] px-6 py-3 rounded-lg font-semibold transition inline-block"
-              >
-                Connect Accounts
-              </Link>
-            )}
           </div>
         ) : (
-          <div className="grid gap-3">
-            {filtered.map(track => (
-              <TrackCard
+          <div className="space-y-1">
+            {filtered.map((track, i) => (
+              <TrackRow
                 key={track.id}
                 track={track}
+                index={i + 1}
                 saved={savedIds.has(track.id)}
+                playing={playingId === track.id}
                 onToggleSave={() => toggleSave(track.id)}
+                onTogglePlay={() => setPlayingId(prev => prev === track.id ? null : track.id)}
               />
             ))}
           </div>
@@ -250,75 +274,107 @@ export default function DashboardPage() {
   );
 }
 
-/* ── Sub-components ── */
+/* ── Track Row ── */
 
-function StatBadge({ label, value, color }: { label: string; value: number; color?: string }) {
-  return (
-    <div className="bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3">
-      <div className="text-2xl font-bold" style={color ? { color } : undefined}>
-        {value}
-      </div>
-      <div className="text-xs text-[#71717A]">{label}</div>
-    </div>
-  );
-}
-
-function TrackCard({
+function TrackRow({
   track,
+  index,
   saved,
+  playing,
   onToggleSave,
+  onTogglePlay,
 }: {
   track: Track;
+  index: number;
   saved: boolean;
+  playing: boolean;
   onToggleSave: () => void;
+  onTogglePlay: () => void;
 }) {
+  const sourceColor = SOURCE_COLORS[(track.source || '').toLowerCase()] || '#7C3AED';
+
   return (
-    <div className="bg-[#0A0A0A] hover:bg-[#141414] border border-white/10 rounded-xl p-4 flex items-center gap-4 transition group">
-      {/* Score badge */}
-      {track.score != null && (
-        <div className="w-10 h-10 rounded-lg bg-[#7C3AED]/20 flex items-center justify-center flex-shrink-0">
-          <span className="text-sm font-bold text-[#7C3AED]">{track.score}</span>
+    <div className={`group rounded-xl px-4 py-3 flex items-center gap-3 transition-all ${
+      playing ? 'bg-[#141414] border border-[#7C3AED]/30' : 'bg-[#0A0A0A] border border-white/[0.04] hover:bg-[#111] hover:border-white/[0.08]'
+    }`}>
+      {/* Play / Index */}
+      <button
+        onClick={onTogglePlay}
+        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all hover:bg-white/10"
+      >
+        {playing ? (
+          <svg className="w-4 h-4 text-[#7C3AED]" fill="currentColor" viewBox="0 0 24 24">
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <span className="text-xs text-[#71717A] group-hover:hidden">{index}</span>
+        )}
+        <svg className="w-4 h-4 text-white hidden group-hover:block" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </button>
+
+      {/* Artwork */}
+      {track.artwork_url ? (
+        <img src={track.artwork_url} alt="" className="w-11 h-11 rounded-lg object-cover flex-shrink-0" />
+      ) : (
+        <div className="w-11 h-11 rounded-lg bg-[#1A1A1A] flex items-center justify-center flex-shrink-0">
+          <span className="text-lg">🎵</span>
         </div>
       )}
 
-      {/* Track info */}
+      {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="font-semibold truncate">{track.artist}</div>
-        <div className="text-[#A1A1AA] text-sm truncate">{track.title}</div>
-        <div className="flex flex-wrap gap-2 mt-1.5">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-[15px] truncate">{track.artist}</span>
+          <span className="text-[#71717A] hidden sm:inline">–</span>
+          <span className="text-[#A1A1AA] text-[15px] truncate hidden sm:inline">{track.title}</span>
+        </div>
+        <div className="sm:hidden text-[#A1A1AA] text-sm truncate">{track.title}</div>
+        <div className="flex items-center gap-2 mt-0.5">
           {track.label && (
-            <span className="text-xs text-[#71717A] bg-white/5 rounded px-2 py-0.5">{track.label}</span>
+            <span className="text-xs text-[#71717A] truncate max-w-[140px]">{track.label}</span>
           )}
           {track.genre && (
-            <span className="text-xs text-[#7C3AED] bg-[#7C3AED]/10 rounded px-2 py-0.5">{track.genre}</span>
-          )}
-          {track.bpm && (
-            <span className="text-xs text-[#71717A]">{track.bpm} BPM</span>
-          )}
-          {track.source && (
-            <span className="text-xs text-[#F59E0B] bg-[#F59E0B]/10 rounded px-2 py-0.5">{track.source}</span>
+            <span className="text-[10px] text-[#A1A1AA] bg-white/[0.06] rounded-full px-2 py-0.5">{track.genre}</span>
           )}
         </div>
       </div>
 
-      {/* Save button */}
+      {/* BPM */}
+      {track.bpm && (
+        <div className="hidden sm:flex flex-col items-center w-16 flex-shrink-0">
+          <span className="text-sm font-medium">{track.bpm}</span>
+          <span className="text-[10px] text-[#71717A]">BPM</span>
+        </div>
+      )}
+
+      {/* Source badge */}
+      <div
+        className="hidden sm:block text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 flex-shrink-0"
+        style={{ color: sourceColor, backgroundColor: `${sourceColor}15` }}
+      >
+        {track.source || 'traxscout'}
+      </div>
+
+      {/* Score */}
+      {track.score != null && (
+        <div className="w-9 h-9 rounded-lg bg-[#7C3AED]/10 flex items-center justify-center flex-shrink-0">
+          <span className="text-xs font-bold text-[#7C3AED]">{track.score}</span>
+        </div>
+      )}
+
+      {/* Save */}
       <button
         onClick={onToggleSave}
-        className="flex-shrink-0 p-2 rounded-lg hover:bg-white/10 transition"
-        aria-label={saved ? 'Unsave track' : 'Save track'}
+        className={`flex-shrink-0 p-2 rounded-lg transition-all ${
+          saved ? 'text-[#F59E0B]' : 'text-[#71717A] hover:text-[#A1A1AA] hover:bg-white/5'
+        }`}
+        aria-label={saved ? 'Unsave' : 'Save'}
       >
-        <svg
-          className={`w-6 h-6 transition ${saved ? 'text-[#F59E0B]' : 'text-[#71717A] group-hover:text-[#A1A1AA]'}`}
-          fill={saved ? 'currentColor' : 'none'}
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={saved ? 0 : 1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-          />
+        <svg className="w-5 h-5" fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={saved ? 0 : 1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
         </svg>
       </button>
     </div>
