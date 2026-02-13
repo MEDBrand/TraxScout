@@ -151,7 +151,7 @@ export default function DashboardPage() {
       {/* Nav */}
       <nav className="border-b border-white/[0.06] bg-black/90 backdrop-blur-2xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-          <Link href="/" className="text-lg font-bold tracking-tight text-[#7C3AED]">
+          <Link href="/dashboard" className="text-lg font-bold tracking-tight text-[#7C3AED]">
             TRAXSCOUT
           </Link>
           <div className="flex items-center gap-3">
