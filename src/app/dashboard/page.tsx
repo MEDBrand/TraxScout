@@ -122,10 +122,32 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#71717A] text-sm">Loading your picks...</p>
+      <main className="min-h-screen bg-black text-white">
+        <nav className="border-b border-white/[0.04] bg-black/80 backdrop-blur-2xl sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <span className="text-lg font-bold tracking-tight text-[#7C3AED]">TRAXSCOUT</span>
+          </div>
+        </nav>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          <div className="skeleton h-3 w-24 mb-2" />
+          <div className="skeleton h-8 w-40 mb-6" />
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {[0,1,2].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}
+          </div>
+          <div className="skeleton h-10 w-56 rounded-xl mb-5" />
+          <div className="space-y-2">
+            {[0,1,2,3,4,5].map(i => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <div className="skeleton skel-art flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="skeleton skel-text-lg" />
+                  <div className="skeleton skel-text-sm" />
+                </div>
+                <div className="skeleton skel-tag" />
+                <div className="skeleton skel-circle" />
+              </div>
+            ))}
+          </div>
         </div>
       </main>
     );
@@ -214,8 +236,8 @@ export default function DashboardPage() {
             {(['all', 'new', 'saved'] as Tab[]).map(tab => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2 rounded-lg text-sm font-medium transition capitalize ${
+                onClick={() => { setActiveTab(tab); navigator?.vibrate?.(10); }}
+                className={`press px-5 py-2 rounded-lg text-sm font-medium transition capitalize ${
                   activeTab === tab
                     ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/20'
                     : 'text-[#71717A] hover:text-white'
@@ -393,13 +415,13 @@ function TrackRow({
 
       {/* Save */}
       <button
-        onClick={onToggleSave}
-        className={`flex-shrink-0 p-2 rounded-lg transition-all ${
+        onClick={() => { onToggleSave(); navigator?.vibrate?.(25); }}
+        className={`flex-shrink-0 p-2 rounded-lg transition-all press ${
           saved ? 'text-[#F59E0B]' : 'text-[#71717A] hover:text-[#A1A1AA] hover:bg-white/5'
         }`}
         aria-label={saved ? 'Unsave' : 'Save'}
       >
-        <svg className="w-5 h-5" fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={saved ? 0 : 1.5}>
+        <svg className={`w-5 h-5 ${saved ? 'heart-pop' : ''}`} fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={saved ? 0 : 1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
         </svg>
       </button>

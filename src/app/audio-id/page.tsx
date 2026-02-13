@@ -46,6 +46,7 @@ export default function AudioIdPage() {
       setResult(null);
       setErrorMsg('');
       chunksRef.current = [];
+      navigator?.vibrate?.([10, 100, 10, 100, 10]); // listening haptic
 
       // On iOS, create an AudioContext first to keep music playing
       // Setting it to 'ambient' category prevents pausing other audio
@@ -144,13 +145,16 @@ export default function AudioIdPage() {
           localStorage.setItem('traxscout_identified', JSON.stringify(existing.slice(0, 100)));
         } catch { /* ignore */ }
         setState('matched');
+        navigator?.vibrate?.([10, 50, 20]); // success haptic
       } else {
         setState('error');
         setErrorMsg('');
+        navigator?.vibrate?.([50, 30, 50]); // error haptic
       }
     } catch {
       setState('error');
       setErrorMsg('Network error. Try again.');
+      navigator?.vibrate?.([50, 30, 50]);
     }
   };
 

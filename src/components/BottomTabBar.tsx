@@ -69,11 +69,14 @@ export default function BottomTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-colors ${
+              onClick={() => navigator?.vibrate?.(10)}
+              className={`flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] transition-colors press ${
                 active ? 'text-[#7C3AED]' : 'text-[#6B6B6B]'
               }`}
             >
-              <tab.Icon active={active} />
+              <div className={active ? 'tab-bounce' : ''}>
+                <tab.Icon active={active} />
+              </div>
               <span className={`text-[10px] leading-none ${active ? 'font-semibold' : 'font-medium'}`}>
                 {tab.label}
               </span>
