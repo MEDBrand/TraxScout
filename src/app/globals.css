@@ -111,6 +111,21 @@ a, button, [role="button"], input, select, textarea {
   scrollbar-width: none;
 }
 
+/* PWA Native Feel */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+button, .tab-bar, nav, [role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Loading skeleton animation */
 @keyframes shimmer {
   0% { background-position: -200% 0; }

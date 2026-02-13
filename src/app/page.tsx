@@ -49,8 +49,12 @@ export default function Home() {
             <span className="text-[#71717A]">not harder.</span>
           </h1>
 
-          <p className="anim-fade-up anim-delay-3 text-lg sm:text-xl text-[#A1A1AA] mb-10 max-w-md mx-auto leading-relaxed">
+          <p className="anim-fade-up anim-delay-3 text-lg sm:text-xl text-[#A1A1AA] mb-6 max-w-md mx-auto leading-relaxed">
             AI-powered track discovery for DJs who refuse to miss a banger.
+          </p>
+
+          <p className="anim-fade-up anim-delay-3 text-[14px] text-[#8A8A8A] font-normal mb-10">
+            The discovery tool a 15-year LIV Miami resident built for himself.
           </p>
 
           <div className="anim-fade-up anim-delay-4">
@@ -120,6 +124,57 @@ export default function Home() {
               desc="Fresh picks in your inbox every morning."
             />
           </div>
+        </div>
+      </section>
+
+      {/* ──────────────── AUDIO ID ──────────────── */}
+      <section className="py-20 sm:py-24 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+            Hear it. Know it. Own it.
+          </h2>
+          <p className="text-[#A1A1AA] text-lg max-w-2xl mx-auto leading-relaxed mb-12">
+            Hear a track at a club? Tap the mic. Traxscout identifies it in seconds — then shows you where to buy it and which DJs are playing it.
+          </p>
+
+          <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
+            {/* TAP */}
+            <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 sm:p-8">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#7C3AED]/15 flex items-center justify-center">
+                <svg className="w-7 h-7 text-[#7C3AED]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-lg mb-2">1. TAP</h3>
+              <p className="text-[#A1A1AA] text-sm leading-relaxed">Hit the mic button when you hear something fire.</p>
+            </div>
+
+            {/* MATCH */}
+            <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 sm:p-8">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#7C3AED]/15 flex items-center justify-center">
+                <svg className="w-7 h-7 text-[#7C3AED]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-lg mb-2">2. MATCH</h3>
+              <p className="text-[#A1A1AA] text-sm leading-relaxed">Our audio engine identifies the track in seconds.</p>
+            </div>
+
+            {/* OWN */}
+            <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 sm:p-8">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#7C3AED]/15 flex items-center justify-center">
+                <svg className="w-7 h-7 text-[#7C3AED]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-lg mb-2">3. OWN</h3>
+              <p className="text-[#A1A1AA] text-sm leading-relaxed">See where to buy it and which DJs are playing it.</p>
+            </div>
+          </div>
+
+          <p className="text-[#71717A] text-base italic">
+            They can hide the screen. They can&apos;t hide the sound.
+          </p>
         </div>
       </section>
 

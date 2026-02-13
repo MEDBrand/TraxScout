@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 // AuthProvider and ToastProvider moved to protected routes only
 // Global layout has zero client JS to prevent hydration crashes
 import "./globals.css";
+import BottomTabBar from "@/components/BottomTabBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,6 +93,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <BottomTabBar />
       </body>
     </html>
   );
