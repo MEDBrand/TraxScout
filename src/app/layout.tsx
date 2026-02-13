@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 // Global layout has zero client JS to prevent hydration crashes
 import "./globals.css";
 import BottomTabBar from "@/components/BottomTabBar";
+import CookieConsent from "@/components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -94,6 +95,7 @@ export default function RootLayout({
       >
         {children}
         <BottomTabBar />
+        <CookieConsent />
       </body>
     </html>
   );

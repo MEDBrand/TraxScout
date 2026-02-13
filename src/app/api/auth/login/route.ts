@@ -1,11 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimit } from '@/lib/rate-limit';
 
 function redirect(url: string, req: NextRequest) {
   return NextResponse.redirect(new URL(url, req.url), 303);
 }
 
+function getClientIp(req: NextRequest): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || req.headers.get('x-real-ip')
+    || '0.0.0.0';
+}
+
+// 5 attempts per 15 minutes per IP
+const LOGIN_LIMIT = { max: 5, windowMs: 15 * 60 * 1000 };
+
 export async function POST(request: NextRequest) {
+  // Rate limit check
+  const ip = getClientIp(request);
+  const { success, remaining, resetIn } = rateLimit(`login:${ip}`, LOGIN_LIMIT);
+
+  if (!success) {
+    const retryAfter = Math.ceil(resetIn / 1000);
+    const contentType = request.headers.get('content-type') || '';
+    if (contentType.includes('form')) {
+      return redirect(`/login?error=${encodeURIComponent('Too many login attempts. Try again in ' + Math.ceil(retryAfter / 60) + ' minutes.')}`, request);
+    }
+    return NextResponse.json(
+      { error: 'Too many login attempts. Try again later.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   try {
     let email: string;
     let password: string;
