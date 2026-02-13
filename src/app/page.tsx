@@ -126,7 +126,7 @@ export default function Home() {
                   <span className="text-[#A1A1AA]">Scanned automatically.</span>
                 </h2>
                 <p className="text-[#A1A1AA] text-lg max-w-lg mx-auto leading-relaxed">
-                  Connect your Inflyte, promo pool, and label accounts.
+                  Connect Inflyte, Promo Box, Label Worx, and your other promo pools.
                   We scan every new drop and surface what fits your sound — so you never dig through noise again.
                 </p>
               </div>
@@ -142,7 +142,7 @@ export default function Home() {
                 </svg>
               }
               title="Multi-store scanning"
-              desc="Beatport, Traxsource, Bandcamp — one dashboard."
+              desc="Beatport, Traxsource, Promo Box, Label Worx — one dashboard."
             />
             <FeatureCard
               icon={
@@ -240,7 +240,7 @@ export default function Home() {
               </div>
               <ul className="space-y-3 mb-8 text-[#A1A1AA] flex-1">
                 <PricingItem>Beatport &amp; Traxsource scanning</PricingItem>
-                <PricingItem>Promo pool connections</PricingItem>
+                <PricingItem>Promo pools (Inflyte, Promo Box, Label Worx)</PricingItem>
                 <PricingItem>Audio ID — 10 IDs/month</PricingItem>
                 <PricingItem>Genre &amp; BPM filters</PricingItem>
                 <PricingItem>Daily email digest</PricingItem>

@@ -124,9 +124,11 @@ Row 5: UKG / Speed Garage | Bass House
 | Traxsource | #3B82F6 (blue) | T | Underground house, exclusive tracks | Credential (email/password inline form) |
 | Inflyte | #7C3AED (purple) | I | Label promos and pre-releases | Credential (email/password inline form) |
 | Trackstack | #22C55E (green) | TS | Producer demos and direct promos | Credential (email/password inline form) |
+| Promo Box | #E11D48 (rose) | PB | DJ promo pool, pre-release tracks | Credential (email/password inline form) |
+| Label Worx | #F97316 (orange) | LW | Label distribution promos, white labels | Credential (email/password inline form) |
 
 ### Interaction
-- "Connect" button → opens inline credential form (Traxsource/Inflyte/Trackstack) or redirects to OAuth (Beatport)
+- "Connect" button → opens inline credential form (Traxsource/Inflyte/Trackstack/Promo Box/Label Worx) or redirects to OAuth (Beatport)
 - On successful connect: row gets green border, button changes to "✓ Connected" (green), description updates with count: "Found 47 new tracks"
 - Minimum 0 sources required (can skip entirely)
 - "I'll do this later" skip link

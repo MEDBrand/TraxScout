@@ -67,7 +67,7 @@ Tap the mic button. Hold your phone up for 5 seconds.
 Identified in under 5 seconds. Artist, title, label, BPM, key — all verified.
 
 **3. Own**
-Buy on Beatport or Traxsource with one tap. Add to your crate instantly.
+Buy on Beatport, Traxsource, Promo Box, or Label Worx with one tap. Add to your crate instantly.
 
 ### Closing Line
 *"They can hide the screen. They can't hide the sound."*

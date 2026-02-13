@@ -249,7 +249,7 @@ async function identifyFromUrl(url: string) {
   //    - Instagram/TikTok: video audio extraction
   //    - Beatport: preview clip extraction
   //    → AcoustID / Chromaprint fingerprinting
-  //    → Match against: Beatport catalog, Traxsource, Discogs
+  //    → Match against: Beatport, Traxsource, Promo Box, Label Worx, Discogs
 
   // 3. Poll for result
   const result = await pollResult(jobId) // SSE or polling
@@ -303,7 +303,7 @@ Haptic: success pattern `[10, 50, 10]`
 - If no data: hide section entirely
 
 ### Buy Flow
-- Tap "Buy" → bottom sheet with store options (Beatport, Traxsource, Juno)
+- Tap "Buy" → bottom sheet with store options (Beatport, Traxsource, Juno, Promo Box, Label Worx)
 - Each store shows price
 - Tap store → opens in external browser / in-app browser
 - After purchase detected (Phase 3): auto-add to crate

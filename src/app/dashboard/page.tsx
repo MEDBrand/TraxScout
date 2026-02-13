@@ -29,6 +29,8 @@ const SOURCE_COLORS: Record<string, string> = {
   beatport: '#94FC13',
   traxsource: '#4A90D9',
   inflyte: '#9B59B6',
+  'promo-box': '#F97316',
+  'label-worx': '#EF4444',
   trackstack: '#00D4AA',
   trackscout: '#7C3AED',
 };
@@ -361,7 +363,7 @@ function TrackRow({
       {/* Reason tag */}
       {track.source && (
         <div className="hidden sm:block text-[10px] rounded-full px-2.5 py-1 flex-shrink-0 bg-[#7C3AED]/10 text-[#7C3AED] font-medium whitespace-nowrap">
-          {track.source === 'inflyte' || track.source === 'trackstack' ? 'From your promo pool' :
+          {['inflyte', 'trackstack', 'promo-box', 'label-worx'].includes(track.source || '') ? 'From your promo pool' :
            track.genre?.toLowerCase().includes('tech house') ? 'Matches your vibe' :
            'New release'}
         </div>

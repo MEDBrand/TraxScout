@@ -60,6 +60,15 @@ export const tokens = {
       red: '#EF4444',
       redDim: 'rgba(239,68,68,0.1)',
     },
+    // Source platform brand colors
+    source: {
+      beatport: '#00D4AA',    // teal
+      traxsource: '#3B82F6',  // blue
+      inflyte: '#7C3AED',     // purple
+      trackstack: '#22C55E',  // green
+      promoBox: '#E11D48',    // rose
+      labelWorx: '#F97316',   // orange
+    },
     glass: {
       bg: 'rgba(28,28,30,0.88)',
       bgHeavy: 'rgba(28,28,30,0.95)',

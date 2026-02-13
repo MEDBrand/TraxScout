@@ -27,6 +27,8 @@ const SOURCES = [
   { id: 'beatport', name: 'Beatport', icon: '🟢' },
   { id: 'traxsource', name: 'Traxsource', icon: '🔵' },
   { id: 'inflyte', name: 'Inflyte', icon: '🟣' },
+  { id: 'promo-box', name: 'Promo Box', icon: '🟠' },
+  { id: 'label-worx', name: 'Label Worx', icon: '🔴' },
   { id: 'trackstack', name: 'Trackstack', icon: '🩵' },
 ];
 
