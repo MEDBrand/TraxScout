@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithGoogle } from '@/lib/supabase-browser';
+import { supabase, signInWithGoogle } from '@/lib/supabase-browser';
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -21,38 +21,15 @@ function LoginContent() {
     setError('');
 
     try {
-      // Server-side auth to avoid client storage detection issues
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Login failed');
+      if (authError) {
+        setError(authError.message);
         setLoading(false);
         return;
-      }
-
-      // Store tokens directly in localStorage as fallback
-      try {
-        localStorage.setItem('sb-access-token', data.access_token);
-        localStorage.setItem('sb-refresh-token', data.refresh_token);
-      } catch {
-        // localStorage might be blocked, continue anyway
-      }
-
-      // Set session in Supabase client
-      try {
-        const { supabase } = await import('@/lib/supabase-browser');
-        await supabase.auth.setSession({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        });
-      } catch {
-        // If setSession fails, tokens are in localStorage, dashboard can pick them up
       }
 
       router.push(redirect);
