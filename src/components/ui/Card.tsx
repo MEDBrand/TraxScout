@@ -35,17 +35,17 @@ export function Card({
     const threshold = 100;
     
     if (info.offset.x < -threshold && onSwipeLeft) {
-      haptic('medium');
+      haptic.medium();
       onSwipeLeft();
     } else if (info.offset.x > threshold && onSwipeRight) {
-      haptic('medium');
+      haptic.medium();
       onSwipeRight();
     }
   };
 
   const handleTap = () => {
     if (onClick) {
-      haptic('light');
+      haptic.light();
       onClick();
     }
   };

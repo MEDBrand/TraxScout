@@ -49,7 +49,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       if (hapticFeedback && !disabled && !loading) {
-        haptic('light');
+        haptic.light();
       }
       onClick?.(e);
     };
