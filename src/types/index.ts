@@ -2,7 +2,7 @@
 
 export type Tier = 'basic' | 'pro' | 'elite';
 
-export type Source = 'beatport' | 'traxsource' | 'inflyte' | 'trackstack' | 'trackscout' | 'promo';
+export type Source = 'beatport' | 'traxsource' | 'inflyte' | 'trackstack' | 'trackscout' | 'promo' | 'bandcamp' | 'soundcloud' | 'promo-box' | 'label-worx';
 
 // Config-driven source connector system (user-auth model)
 export type SourceStatus = 'active' | 'coming_soon' | 'disabled';

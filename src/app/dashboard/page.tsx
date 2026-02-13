@@ -124,12 +124,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black text-white">
-        <nav className="border-b border-white/[0.04] bg-black/80 backdrop-blur-2xl sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-            <span className="text-lg font-bold tracking-tight text-[#7C3AED]">TRAXSCOUT</span>
-          </div>
-        </nav>
+      <main className="min-h-screen bg-black text-white pb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
           <div className="skeleton h-3 w-24 mb-2" />
           <div className="skeleton h-8 w-40 mb-6" />
@@ -139,7 +134,7 @@ export default function DashboardPage() {
           <div className="skeleton h-10 w-56 rounded-xl mb-5" />
           <div className="space-y-2">
             {[0,1,2,3,4,5].map(i => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <div key={i} className="flex items-center gap-3 p-3 rounded-[14px]" style={{ background: 'rgba(255,255,255,0.015)', border: '0.5px solid rgba(255,255,255,0.04)' }}>
                 <div className="skeleton skel-art flex-shrink-0" />
                 <div className="flex-1">
                   <div className="skeleton skel-text-lg" />
@@ -171,27 +166,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      {/* Nav */}
-      <nav className="border-b border-white/[0.04] bg-black/80 backdrop-blur-2xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-          <Link href="/dashboard" className="text-lg font-bold tracking-tight text-[#7C3AED]">
-            TRAXSCOUT
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/settings" className="text-sm text-[#71717A] hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-white/5">
-              Settings
-            </Link>
-            <a href="/api/auth/logout" className="text-sm text-[#71717A] hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-white/5">
-              Logout
-            </a>
-          </div>
-        </div>
-      </nav>
-
+    <main className="min-h-screen bg-black text-white pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 relative">
-        {/* Ambient Purple Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(124,58,237,0.08) 0%, transparent 70%)' }} />
+        {/* Ambient Purple Glow — #2 */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[350px] h-[350px] rounded-full pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.14) 0%, transparent 70%)' }} />
 
         {/* Hero Greeting */}
         <div className="relative mb-6">
@@ -204,8 +182,8 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {/* Connect Banner — Glassmorphism */}
-        <div className="rounded-2xl px-5 py-4 mb-6 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(124,58,237,0.2)' }}>
+        {/* Connect Banner — Glassmorphism (#3) */}
+        <div className="rounded-2xl px-5 py-4 mb-6 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '0.5px solid rgba(255,255,255,0.05)' }}>
           <div>
             <span className="text-sm text-[#A1A1AA]">Connect </span>
             <span className="text-sm text-white font-medium">Beatport, Traxsource</span>
@@ -216,34 +194,34 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats — Glassmorphism */}
+        {/* Stats — Glassmorphism + accent glow (#6) */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <div className="text-3xl font-bold">{todayCount}</div>
-            <div className="text-xs text-[#71717A] mt-1">Today&apos;s picks (20 max)</div>
-          </div>
-          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <div className="text-3xl font-bold text-[#7C3AED]">{newCount}</div>
-            <div className="text-xs text-[#71717A] mt-1">New</div>
-          </div>
-          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <div className="text-3xl font-bold text-[#F59E0B]">{savedCount}</div>
-            <div className="text-xs text-[#71717A] mt-1">Saved</div>
-          </div>
+          {[
+            { value: todayCount, label: "Today\u2019s picks (20 max)", color: '#FFFFFF' },
+            { value: newCount, label: 'New', color: '#F59E0B' },
+            { value: savedCount, label: 'Saved', color: savedCount === 0 ? '#6B6B6B' : '#F59E0B' },
+          ].map((stat, i) => (
+            <div key={i} className="relative rounded-2xl p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="absolute top-0 left-[20%] right-[20%] h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.5), transparent)' }} />
+              <div className="text-3xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
+              <div className="text-xs text-[#71717A] mt-1">{stat.label}</div>
+            </div>
+          ))}
         </div>
 
         {/* Filters Row */}
         <div className="flex flex-wrap items-center gap-3 mb-5">
-          <div className="flex bg-[#0A0A0A] rounded-xl p-1 border border-white/[0.06]">
+          <div className="flex rounded-xl p-1" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)' }}>
             {(['all', 'new', 'saved'] as Tab[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => { setActiveTab(tab); navigator?.vibrate?.(10); }}
                 className={`press px-5 py-2 rounded-lg text-sm font-medium transition capitalize ${
                   activeTab === tab
-                    ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/20'
+                    ? 'text-[#A78BFA]'
                     : 'text-[#71717A] hover:text-white'
                 }`}
+                style={activeTab === tab ? { background: 'rgba(124,58,237,0.2)' } : undefined}
               >
                 {tab}
               </button>
@@ -284,7 +262,7 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-16 text-center mt-4">
+          <div className="rounded-2xl p-16 text-center mt-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
             <div className="text-5xl mb-5">{activeTab === 'saved' ? '💛' : '🎵'}</div>
             <h2 className="text-lg font-semibold mb-2">
               {activeTab === 'saved' ? 'No saved tracks yet' : 'No tracks found'}
@@ -335,9 +313,13 @@ function TrackRow({
   const sourceColor = SOURCE_COLORS[(track.source || '').toLowerCase()] || '#7C3AED';
 
   return (
-    <div className={`group rounded-xl px-4 py-3 flex items-center gap-3 transition-all ${
-      playing ? 'bg-[#141414] border border-[#7C3AED]/30' : 'bg-[#0A0A0A] border border-white/[0.04] hover:bg-[#111] hover:border-white/[0.08]'
-    }`}>
+    <div
+      className="group rounded-[14px] px-4 py-3 flex items-center gap-3 transition-all active:shadow-[inset_0_0_20px_rgba(124,58,237,0.08)]"
+      style={{
+        background: playing ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)',
+        border: playing ? '0.5px solid rgba(124,58,237,0.3)' : '0.5px solid rgba(255,255,255,0.04)',
+      }}
+    >
       {/* Play / Index */}
       <button
         onClick={onTogglePlay}
