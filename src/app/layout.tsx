@@ -96,6 +96,11 @@ export default function RootLayout({
         {children}
         <BottomTabBar />
         <CookieConsent />
+        {/* Film grain overlay — subtle texture for premium feel */}
+        <svg className="fixed inset-0 w-full h-full pointer-events-none z-[9999] opacity-[0.04]" aria-hidden="true">
+          <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/></filter>
+          <rect width="100%" height="100%" filter="url(#grain)"/>
+        </svg>
       </body>
     </html>
   );

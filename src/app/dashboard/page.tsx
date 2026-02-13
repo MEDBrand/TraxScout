@@ -149,7 +149,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Nav */}
-      <nav className="border-b border-white/[0.06] bg-black/90 backdrop-blur-2xl sticky top-0 z-50">
+      <nav className="border-b border-white/[0.04] bg-black/80 backdrop-blur-2xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
           <Link href="/dashboard" className="text-lg font-bold tracking-tight text-[#7C3AED]">
             TRAXSCOUT
@@ -165,9 +165,23 @@ export default function DashboardPage() {
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-        {/* Welcome + Connect Banner */}
-        <div className="bg-gradient-to-r from-[#7C3AED]/10 to-transparent border border-[#7C3AED]/20 rounded-2xl px-5 py-4 mb-6 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 relative">
+        {/* Ambient Purple Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(124,58,237,0.08) 0%, transparent 70%)' }} />
+
+        {/* Hero Greeting */}
+        <div className="relative mb-6">
+          <p className="text-xs font-medium tracking-[0.2em] text-[#71717A] mb-1">
+            {new Date().getHours() < 12 ? 'GOOD MORNING' : new Date().getHours() < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING'}
+          </p>
+          <h1 className="text-3xl font-bold">
+            <span className="text-white">Your </span>
+            <span className="text-[#7C3AED]">Drop</span>
+          </h1>
+        </div>
+
+        {/* Connect Banner — Glassmorphism */}
+        <div className="rounded-2xl px-5 py-4 mb-6 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(124,58,237,0.2)' }}>
           <div>
             <span className="text-sm text-[#A1A1AA]">Connect </span>
             <span className="text-sm text-white font-medium">Beatport, Traxsource</span>
@@ -178,17 +192,17 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats */}
+        {/* Stats — Glassmorphism */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-4">
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
             <div className="text-3xl font-bold">{todayCount}</div>
             <div className="text-xs text-[#71717A] mt-1">Today&apos;s picks (20 max)</div>
           </div>
-          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-4">
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
             <div className="text-3xl font-bold text-[#7C3AED]">{newCount}</div>
             <div className="text-xs text-[#71717A] mt-1">New</div>
           </div>
-          <div className="bg-[#0A0A0A] border border-white/[0.06] rounded-2xl p-4">
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
             <div className="text-3xl font-bold text-[#F59E0B]">{savedCount}</div>
             <div className="text-xs text-[#71717A] mt-1">Saved</div>
           </div>
