@@ -42,10 +42,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       const id = Math.random().toString(36).slice(2);
       
       // Haptic feedback based on type
-      if (type === 'success') haptic('success');
-      else if (type === 'error') haptic('error');
+      if (type === 'success') haptic.success();
+      else if (type === 'error') haptic.error();
       else if (type === 'warning') haptic('warning');
-      else haptic('light');
+      else haptic.light();
 
       setToasts((prev) => [...prev, { id, type, message, duration }]);
 
@@ -128,7 +128,7 @@ function ToastItem({
       dragElastic={0.1}
       onDragEnd={(_, info) => {
         if (Math.abs(info.offset.x) > 100) {
-          haptic('light');
+          haptic.light();
           onRemove(toast.id);
         }
       }}
@@ -148,7 +148,7 @@ function ToastItem({
       <span className="flex-1 text-sm font-medium text-white">{toast.message}</span>
       <button
         onClick={() => {
-          haptic('light');
+          haptic.light();
           onRemove(toast.id);
         }}
         className="text-gray-400 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
