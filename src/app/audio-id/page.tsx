@@ -414,25 +414,11 @@ export default function AudioIdPage() {
           </button>
         )}
 
-        {/* Or paste a link */}
+        {/* Hint text */}
         {state === 'idle' && (
-          <div className="mt-8 w-full max-w-sm" style={{ animation: 'fadeInUp 0.5s ease-out 0.2s both' }}>
-            <div className="flex items-center gap-2 text-[#555] text-xs mb-3 justify-center">
-              <div className="h-[1px] w-8 bg-[#333]" />
-              <span>or paste a link</span>
-              <div className="h-[1px] w-8 bg-[#333]" />
-            </div>
-            <div className="relative">
-              <input
-                type="url"
-                placeholder="SoundCloud, YouTube, Spotify URL..."
-                className="w-full bg-[#141414] border border-[#2A2A2A] rounded-xl px-4 py-3 text-sm text-white placeholder-[#555] focus:outline-none focus:border-[#7C3AED]/50 focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
-              />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
-                ID
-              </button>
-            </div>
-          </div>
+          <p className="mt-10 text-[#555] text-xs text-center" style={{ animation: 'fadeInUp 0.5s ease-out 0.3s both' }}>
+            Works best in clubs, at parties, or near any speaker
+          </p>
         )}
       </div>
 
