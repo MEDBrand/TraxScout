@@ -321,60 +321,52 @@ export default function AudioIdPage() {
         </div>
 
         {/* Main button area */}
-        <div className="relative flex items-center justify-center mb-16">
+        <div className="relative flex items-center justify-center mb-16" style={{ width: '176px', height: '176px' }}>
 
           {/* Pulse rings (listening + identifying) */}
           {(state === 'listening' || state === 'identifying') && (
             <>
-              <div className="absolute w-44 h-44 rounded-full border border-[#7C3AED]/20 ring-animate" />
-              <div className="absolute w-44 h-44 rounded-full border border-[#7C3AED]/15 ring-animate" style={{ animationDelay: '0.6s' }} />
-              <div className="absolute w-44 h-44 rounded-full border border-[#7C3AED]/10 ring-animate-slow" style={{ animationDelay: '1.2s' }} />
+              <div className="absolute inset-0 m-auto w-44 h-44 rounded-full border border-[#7C3AED]/20 ring-animate" />
+              <div className="absolute inset-0 m-auto w-44 h-44 rounded-full border border-[#7C3AED]/15 ring-animate" style={{ animationDelay: '0.6s' }} />
+              <div className="absolute inset-0 m-auto w-44 h-44 rounded-full border border-[#7C3AED]/10 ring-animate-slow" style={{ animationDelay: '1.2s' }} />
             </>
           )}
 
-          {/* Outer ring — gradient border */}
-          <div
-            className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full p-[2px] cursor-pointer"
+          {/* Single button with gradient border */}
+          <button
             onClick={handleTap}
+            className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full flex items-center justify-center overflow-hidden focus:outline-none"
             style={{
               background: state === 'listening' || state === 'identifying'
-                ? 'conic-gradient(from 0deg, #7C3AED, #6366F1, #A855F7, #7C3AED)'
+                ? 'radial-gradient(circle at 40% 40%, #1a1025 0%, #0d0d0d 100%)'
                 : state === 'matched'
-                ? 'conic-gradient(from 0deg, #10B981, #34D399, #6EE7B7, #10B981)'
-                : 'conic-gradient(from 0deg, rgba(124,58,237,0.4), rgba(99,102,241,0.2), rgba(168,85,247,0.4), rgba(124,58,237,0.4))',
-              animation: (state === 'listening' || state === 'identifying') ? 'gradientRotate 3s linear infinite' : 'none',
+                ? 'radial-gradient(circle at 40% 40%, #0d1a14 0%, #0d0d0d 100%)'
+                : 'radial-gradient(circle at 40% 40%, #141414 0%, #0A0A0A 100%)',
+              boxShadow: state === 'listening' || state === 'identifying'
+                ? '0 0 0 2px #7C3AED, 0 0 30px rgba(124,58,237,0.3)'
+                : state === 'matched'
+                ? '0 0 0 2px #10B981, 0 0 30px rgba(16,185,129,0.3)'
+                : '0 0 0 1.5px rgba(124,58,237,0.3)',
+              animation: (state === 'listening' || state === 'identifying') ? 'breathe 2.5s ease-in-out infinite' : 'none',
             }}
           >
-            {/* Inner fill */}
-            <div
-              className="w-full h-full rounded-full flex items-center justify-center transition-all duration-500"
-              style={{
-                background: state === 'listening' || state === 'identifying'
-                  ? 'radial-gradient(circle at 40% 40%, #1a1025 0%, #0d0d0d 100%)'
-                  : state === 'matched'
-                  ? 'radial-gradient(circle at 40% 40%, #0d1a14 0%, #0d0d0d 100%)'
-                  : 'radial-gradient(circle at 40% 40%, #141414 0%, #0A0A0A 100%)',
-                animation: (state === 'listening' || state === 'identifying') ? 'breathe 2.5s ease-in-out infinite' : 'none',
-              }}
-            >
-              {state === 'identifying' ? (
-                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full" style={{ animation: 'gradientRotate 0.8s linear infinite' }} />
-              ) : state === 'matched' ? (
-                <svg className="w-12 h-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ animation: 'successPop 0.4s ease-out' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : state === 'error' ? (
-                <svg className="w-10 h-10 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                </svg>
-              ) : (
-                <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                  <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" opacity="0.7" />
-                </svg>
-              )}
-            </div>
-          </div>
+            {state === 'identifying' ? (
+              <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full" style={{ animation: 'gradientRotate 0.8s linear infinite' }} />
+            ) : state === 'matched' ? (
+              <svg className="w-12 h-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ animation: 'successPop 0.4s ease-out' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : state === 'error' ? (
+              <svg className="w-10 h-10 text-[#555]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+              </svg>
+            ) : (
+              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" opacity="0.7" />
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Waveform (listening) */}
