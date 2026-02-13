@@ -9,9 +9,6 @@ import { getSourcesForTier } from '@/config/sources';
 import { getConnections } from '@/app/actions/connections';
 import { rankTracks, DAILY_TRACK_LIMIT } from '@/services/scoring';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
 export async function GET(request: NextRequest) {
   // Auth check
   const token = request.headers.get('authorization')?.replace('Bearer ', '');
@@ -19,7 +16,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });

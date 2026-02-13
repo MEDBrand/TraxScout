@@ -8,10 +8,12 @@ import { encrypt, decrypt } from '@/lib/encryption';
 import { createClient } from '@supabase/supabase-js';
 import { getSourceConfig } from '@/config/sources';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
 export interface ConnectResult {
   success: boolean;
@@ -38,7 +40,7 @@ export async function connectWithCredentials(
   const encrypted = encrypt(payload);
 
   // Upsert: one connection per user per source
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from('connected_accounts')
     .upsert(
       {
@@ -77,7 +79,7 @@ export async function connectWithOAuth(
   });
   const encrypted = encrypt(payload);
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from('connected_accounts')
     .upsert(
       {
@@ -103,7 +105,7 @@ export async function disconnectSource(
   userId: string,
   sourceId: string,
 ): Promise<ConnectResult> {
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('connected_accounts')
     .delete()
     .eq('user_id', userId)
@@ -115,7 +117,7 @@ export async function disconnectSource(
 
 // Get all connected accounts for a user (without decrypted credentials)
 export async function getConnections(userId: string) {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from('connected_accounts')
     .select('id, source_id, status, last_sync_at, last_error, created_at, updated_at')
     .eq('user_id', userId);
@@ -137,7 +139,7 @@ export async function getDecryptedCredentials(
   userId: string,
   sourceId: string,
 ): Promise<Record<string, string> | null> {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from('connected_accounts')
     .select('credentials_encrypted')
     .eq('user_id', userId)
@@ -160,7 +162,7 @@ export async function updateConnectionStatus(
   status: 'connected' | 'expired' | 'error',
   lastError?: string,
 ) {
-  await supabaseAdmin
+  await getSupabaseAdmin()
     .from('connected_accounts')
     .update({
       status,

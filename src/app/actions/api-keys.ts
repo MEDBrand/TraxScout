@@ -5,10 +5,12 @@ import { createClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 
 // Server-side Supabase client with service role for secure writes
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
 // Derive authenticated userId from the request, never trust client input
 async function getAuthUserId(): Promise<string | null> {
@@ -39,7 +41,7 @@ export async function storeApiKey(
   const keyId = `${provider}_${Date.now()}`;
   const keyEncrypted = encrypt(apiKey);
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('api_keys')
     .upsert({
       id: keyId,
@@ -60,7 +62,7 @@ export async function deleteApiKey(keyId: string) {
   const userId = await getAuthUserId();
   if (!userId) return { error: 'Unauthorized' };
 
-  const { error } = await supabaseAdmin
+  const { error } = await getSupabaseAdmin()
     .from('api_keys')
     .delete()
     .eq('id', keyId)
