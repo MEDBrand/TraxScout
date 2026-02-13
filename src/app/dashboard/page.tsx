@@ -29,6 +29,8 @@ type Tab = 'all' | 'new' | 'saved';
 const SOURCE_COLORS: Record<string, string> = {
   beatport: '#94FC13',
   traxsource: '#4A90D9',
+  soundcloud: '#FF5500',
+  bandcamp: '#1DA0C3',
   inflyte: '#9B59B6',
   'promo-box': '#F97316',
   'label-worx': '#EF4444',

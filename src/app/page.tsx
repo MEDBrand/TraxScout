@@ -142,7 +142,7 @@ export default function Home() {
                 </svg>
               }
               title="Multi-store scanning"
-              desc="Beatport, Traxsource, Promo Box, Label Worx — one dashboard."
+              desc="Beatport, Traxsource, SoundCloud, Bandcamp — one dashboard."
             />
             <FeatureCard
               icon={
@@ -240,7 +240,7 @@ export default function Home() {
               </div>
               <ul className="space-y-3 mb-8 text-[#A1A1AA] flex-1">
                 <PricingItem>Beatport &amp; Traxsource scanning</PricingItem>
-                <PricingItem>Promo pools (Inflyte, Promo Box, Label Worx)</PricingItem>
+                <PricingItem>All stores + promo pools (SoundCloud, Bandcamp, Inflyte, more)</PricingItem>
                 <PricingItem>Audio ID — 10 IDs/month</PricingItem>
                 <PricingItem>Genre &amp; BPM filters</PricingItem>
                 <PricingItem>Daily email digest</PricingItem>
