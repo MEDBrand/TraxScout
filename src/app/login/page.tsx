@@ -20,13 +20,18 @@ function LoginContent() {
     setLoading(true);
     setError('');
 
-    const { error } = await signIn(email, password);
+    try {
+      const { error } = await signIn(email, password);
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      } else {
+        router.push(redirect);
+      }
+    } catch (err) {
+      setError('Something went wrong. Try again.');
       setLoading(false);
-    } else {
-      router.push(redirect);
     }
   };
 
