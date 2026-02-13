@@ -1,7 +1,7 @@
 // Stripe Checkout API Route
 
 import { NextResponse } from 'next/server';
-import { stripe, PLANS, TRIAL_DAYS } from '@/lib/stripe';
+import { getStripe, PLANS, TRIAL_DAYS } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     const plan = tier === 'pro' ? PLANS.pro : PLANS.basic;
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer_email: email,
