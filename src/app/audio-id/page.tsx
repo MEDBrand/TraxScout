@@ -3,31 +3,138 @@
 import { useState, useEffect, useRef } from 'react';
 import BottomTabBar from '@/components/BottomTabBar';
 
-type State = 'idle' | 'listening' | 'matched' | 'error';
+type State = 'idle' | 'listening' | 'identifying' | 'matched' | 'error';
+
+interface MatchResult {
+  artist: string;
+  title: string;
+  album?: string;
+  links?: { spotify?: string; youtube?: string; beatport?: string; deezer?: string; appleMusic?: string };
+  venue?: string;
+}
 
 export default function AudioIdPage() {
   const [state, setState] = useState<State>('idle');
   const [seconds, setSeconds] = useState(0);
+  const [result, setResult] = useState<MatchResult | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
+  // Timer for listening state
   useEffect(() => {
     if (state === 'listening') {
       setSeconds(0);
       timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
-      const timeout = setTimeout(() => setState('error'), 15000);
-      return () => {
-        if (timerRef.current) clearInterval(timerRef.current);
-        clearTimeout(timeout);
-      };
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
   }, [state]);
 
+  // Auto-stop recording after 10s and send for identification
+  useEffect(() => {
+    if (state === 'listening' && seconds >= 10) {
+      stopRecording();
+    }
+  }, [state, seconds]);
+
+  const startRecording = async () => {
+    try {
+      setResult(null);
+      setErrorMsg('');
+      chunksRef.current = [];
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : 'audio/webm',
+      });
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        // Clean up stream
+        stream.getTracks().forEach(t => t.stop());
+
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        if (audioBlob.size < 1000) {
+          setState('error');
+          setErrorMsg('Recording too short');
+          return;
+        }
+        await identifyAudio(audioBlob);
+      };
+
+      mediaRecorder.start(1000); // collect in 1s chunks
+      setState('listening');
+    } catch (err) {
+      setState('error');
+      setErrorMsg(err instanceof Error && err.name === 'NotAllowedError'
+        ? 'Mic access denied. Check your browser settings.'
+        : 'Could not access microphone');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    setState('identifying');
+  };
+
+  const identifyAudio = async (audioBlob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'sample.webm');
+
+      const res = await fetch('/api/identify', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (data.found) {
+        setResult({
+          artist: data.artist,
+          title: data.title,
+          album: data.album,
+          links: data.links,
+          venue: data.venue,
+        });
+        // Save to identified collection
+        try {
+          const existing = JSON.parse(localStorage.getItem('traxscout_identified') || '[]');
+          existing.unshift({
+            id: crypto.randomUUID(),
+            title: data.title,
+            artist: data.artist,
+            album: data.album,
+            store_url: data.links?.spotify || data.links?.beatport,
+            identified_at: new Date().toISOString(),
+          });
+          localStorage.setItem('traxscout_identified', JSON.stringify(existing.slice(0, 100)));
+        } catch { /* ignore */ }
+        setState('matched');
+      } else {
+        setState('error');
+        setErrorMsg('');
+      }
+    } catch {
+      setState('error');
+      setErrorMsg('Network error. Try again.');
+    }
+  };
+
   const handleTap = () => {
-    if (state === 'listening') setState('idle');
-    else if (state === 'error' || state === 'matched') setState('idle');
-    else setState('listening');
+    if (state === 'listening') stopRecording();
+    else if (state === 'identifying') return; // wait
+    else startRecording();
   };
 
   return (
@@ -103,7 +210,7 @@ export default function AudioIdPage() {
           className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full blur-[120px] transition-opacity duration-1000"
           style={{
             background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)',
-            opacity: state === 'listening' ? 1 : 0.3,
+            opacity: (state === 'listening' || state === 'identifying') ? 1 : 0.3,
             animation: 'orbFloat1 8s ease-in-out infinite',
           }}
         />
@@ -111,7 +218,7 @@ export default function AudioIdPage() {
           className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full blur-[130px] transition-opacity duration-1000"
           style={{
             background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)',
-            opacity: state === 'listening' ? 0.8 : 0.2,
+            opacity: (state === 'listening' || state === 'identifying') ? 0.8 : 0.2,
             animation: 'orbFloat2 10s ease-in-out infinite',
           }}
         />
@@ -119,7 +226,7 @@ export default function AudioIdPage() {
           className="absolute bottom-1/3 left-1/3 w-56 h-56 rounded-full blur-[100px] transition-opacity duration-1000"
           style={{
             background: 'radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%)',
-            opacity: state === 'listening' ? 0.9 : 0.15,
+            opacity: (state === 'listening' || state === 'identifying') ? 0.9 : 0.15,
             animation: 'orbFloat3 12s ease-in-out infinite',
           }}
         />
@@ -142,16 +249,46 @@ export default function AudioIdPage() {
               <p className="text-[#A1A1AA] text-base font-mono tabular-nums">{seconds}s</p>
             </>
           )}
-          {state === 'matched' && (
+          {state === 'identifying' && (
+            <>
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Identifying...</h1>
+              <p className="text-[#A1A1AA] text-base">Matching your audio</p>
+            </>
+          )}
+          {state === 'matched' && result && (
             <div style={{ animation: 'fadeInUp 0.4s ease-out' }}>
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-emerald-400">Found it</h1>
-              <p className="text-[#A1A1AA] text-base">Track identified</p>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-emerald-400">{result.title}</h1>
+              <p className="text-[#A1A1AA] text-lg mb-1">{result.artist}</p>
+              {result.album && <p className="text-[#555] text-sm">{result.album}</p>}
+              {result.venue && <p className="text-[#555] text-xs mt-2">📍 {result.venue}</p>}
+              {result.links && (
+                <div className="flex gap-3 justify-center mt-4">
+                  {result.links.spotify && (
+                    <a href={result.links.spotify} target="_blank" rel="noopener noreferrer"
+                      className="text-xs bg-[#1DB954]/10 text-[#1DB954] px-3 py-1.5 rounded-lg hover:bg-[#1DB954]/20 transition-colors">
+                      Spotify
+                    </a>
+                  )}
+                  {result.links.beatport && (
+                    <a href={result.links.beatport} target="_blank" rel="noopener noreferrer"
+                      className="text-xs bg-[#94FC13]/10 text-[#94FC13] px-3 py-1.5 rounded-lg hover:bg-[#94FC13]/20 transition-colors">
+                      Beatport
+                    </a>
+                  )}
+                  {result.links.youtube && (
+                    <a href={result.links.youtube} target="_blank" rel="noopener noreferrer"
+                      className="text-xs bg-[#FF0000]/10 text-[#FF4444] px-3 py-1.5 rounded-lg hover:bg-[#FF0000]/20 transition-colors">
+                      YouTube
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {state === 'error' && (
             <div style={{ animation: 'shake 0.5s ease-in-out' }}>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-[#71717A]">No match</h1>
-              <p className="text-[#555] text-base">Try again closer to the speaker</p>
+              <p className="text-[#555] text-base">{errorMsg || 'Try again closer to the speaker'}</p>
             </div>
           )}
         </div>
@@ -159,8 +296,8 @@ export default function AudioIdPage() {
         {/* Main button area */}
         <div className="relative flex items-center justify-center mb-16">
 
-          {/* Pulse rings (listening only) */}
-          {state === 'listening' && (
+          {/* Pulse rings (listening + identifying) */}
+          {(state === 'listening' || state === 'identifying') && (
             <>
               <div className="absolute w-44 h-44 rounded-full border border-[#7C3AED]/20 ring-animate" />
               <div className="absolute w-44 h-44 rounded-full border border-[#7C3AED]/15 ring-animate" style={{ animationDelay: '0.6s' }} />
@@ -173,27 +310,29 @@ export default function AudioIdPage() {
             className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full p-[2px] cursor-pointer"
             onClick={handleTap}
             style={{
-              background: state === 'listening'
+              background: state === 'listening' || state === 'identifying'
                 ? 'conic-gradient(from 0deg, #7C3AED, #6366F1, #A855F7, #7C3AED)'
                 : state === 'matched'
                 ? 'conic-gradient(from 0deg, #10B981, #34D399, #6EE7B7, #10B981)'
                 : 'conic-gradient(from 0deg, rgba(124,58,237,0.4), rgba(99,102,241,0.2), rgba(168,85,247,0.4), rgba(124,58,237,0.4))',
-              animation: state === 'listening' ? 'gradientRotate 3s linear infinite' : 'none',
+              animation: (state === 'listening' || state === 'identifying') ? 'gradientRotate 3s linear infinite' : 'none',
             }}
           >
             {/* Inner fill */}
             <div
               className="w-full h-full rounded-full flex items-center justify-center transition-all duration-500"
               style={{
-                background: state === 'listening'
+                background: state === 'listening' || state === 'identifying'
                   ? 'radial-gradient(circle at 40% 40%, #1a1025 0%, #0d0d0d 100%)'
                   : state === 'matched'
                   ? 'radial-gradient(circle at 40% 40%, #0d1a14 0%, #0d0d0d 100%)'
                   : 'radial-gradient(circle at 40% 40%, #141414 0%, #0A0A0A 100%)',
-                animation: state === 'listening' ? 'breathe 2.5s ease-in-out infinite' : 'none',
+                animation: (state === 'listening' || state === 'identifying') ? 'breathe 2.5s ease-in-out infinite' : 'none',
               }}
             >
-              {state === 'matched' ? (
+              {state === 'identifying' ? (
+                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full" style={{ animation: 'gradientRotate 0.8s linear infinite' }} />
+              ) : state === 'matched' ? (
                 <svg className="w-12 h-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ animation: 'successPop 0.4s ease-out' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -212,7 +351,7 @@ export default function AudioIdPage() {
         </div>
 
         {/* Waveform (listening) */}
-        {state === 'listening' && (
+        {(state === 'listening' || state === 'identifying') && (
           <div className="flex items-center justify-center gap-[3px] h-10 mb-8" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
             {Array.from({ length: 24 }).map((_, i) => {
               const maxH = 8 + Math.sin(i * 0.7) * 16 + Math.random() * 12;
