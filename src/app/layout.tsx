@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "@/lib/auth-context";
+// AuthProvider moved to protected routes only — importing supabase globally crashes hydration
+// import { AuthProvider } from "@/lib/auth-context";
 import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
@@ -93,11 +94,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </AuthProvider>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

@@ -3,7 +3,8 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase, signInWithGoogle } from '@/lib/supabase-browser';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -21,15 +22,11 @@ function LoginContent() {
     setError('');
 
     try {
-      // Direct fetch to avoid Supabase JS client hanging in some browsers
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-      const res = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': supabaseKey,
+          'apikey': SUPABASE_KEY,
         },
         body: JSON.stringify({ email, password }),
       });
@@ -56,12 +53,9 @@ function LoginContent() {
     setLoading(true);
     setError('');
 
-    const { error } = await signInWithGoogle();
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    }
+    // Direct OAuth redirect — no supabase JS client needed
+    const redirectTo = `${window.location.origin}/api/auth/callback`;
+    window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   };
 
   return (

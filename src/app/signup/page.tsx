@@ -3,7 +3,8 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signUp, signInWithGoogle, supabase } from '@/lib/supabase-browser';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 const GENRES = [
   'Tech House',
@@ -39,11 +40,8 @@ function SignupForm() {
   const handleGoogleSignup = async () => {
     setLoading(true);
     setError('');
-    const { error } = await signInWithGoogle();
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    }
+    const redirectTo = `${window.location.origin}/api/auth/callback`;
+    window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
   };
 
   const handleEmailContinue = async () => {
@@ -65,14 +63,11 @@ function SignupForm() {
 
     try {
       // Direct fetch to avoid Supabase JS client hanging
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-      const signupRes = await fetch(`${supabaseUrl}/auth/v1/signup`, {
+      const signupRes = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': supabaseKey,
+          'apikey': SUPABASE_KEY,
         },
         body: JSON.stringify({
           email,
