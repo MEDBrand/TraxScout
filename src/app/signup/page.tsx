@@ -96,19 +96,10 @@ function SignupForm() {
         return;
       }
 
-      // Auto-login: set session in Supabase client
-      try {
-        await supabase.auth.setSession({
-          access_token: signupData.access_token,
-          refresh_token: signupData.refresh_token,
-        });
-      } catch {
-        // If setSession fails, store tokens manually
-        localStorage.setItem('sb-access-token', signupData.access_token);
-        localStorage.setItem('sb-refresh-token', signupData.refresh_token);
-      }
-
-      router.push('/dashboard?welcome=true');
+      // Store tokens directly — skip supabase JS client entirely
+      localStorage.setItem('sb-access-token', signupData.access_token);
+      localStorage.setItem('sb-refresh-token', signupData.refresh_token);
+      window.location.href = '/dashboard?welcome=true';
     } catch (err) {
       setError('Something went wrong. Please try again.');
       setLoading(false);

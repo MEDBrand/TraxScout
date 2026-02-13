@@ -42,18 +42,10 @@ function LoginContent() {
         return;
       }
 
-      // Set session in Supabase client
-      try {
-        await supabase.auth.setSession({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-        });
-      } catch {
-        localStorage.setItem('sb-access-token', data.access_token);
-        localStorage.setItem('sb-refresh-token', data.refresh_token);
-      }
-
-      router.push(redirect);
+      // Store tokens directly — skip supabase JS client entirely
+      localStorage.setItem('sb-access-token', data.access_token);
+      localStorage.setItem('sb-refresh-token', data.refresh_token);
+      window.location.href = redirect;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Try again.');
       setLoading(false);
