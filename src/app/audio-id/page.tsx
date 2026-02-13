@@ -165,7 +165,7 @@ export default function AudioIdPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white pb-24 overflow-hidden">
+    <main className="min-h-screen bg-black text-white pb-24 overflow-hidden select-none" style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}>
       <style>{`
         @keyframes orbFloat1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -335,8 +335,11 @@ export default function AudioIdPage() {
           {/* Single button with gradient border */}
           <button
             onClick={handleTap}
-            className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full flex items-center justify-center overflow-hidden focus:outline-none"
+            className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full flex items-center justify-center overflow-hidden focus:outline-none select-none"
             style={{
+              touchAction: 'manipulation',
+              WebkitTouchCallout: 'none',
+              WebkitUserSelect: 'none',
               background: state === 'listening' || state === 'identifying'
                 ? 'radial-gradient(circle at 40% 40%, #1a1025 0%, #0d0d0d 100%)'
                 : state === 'matched'
