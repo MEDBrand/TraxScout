@@ -9,13 +9,13 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth via Bearer token, not cookies (CSRF-safe)
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    // Cookies first, fall back to Bearer header
+    const token = request.cookies.get('sb-access-token')?.value
+      || request.headers.get('Authorization')?.replace('Bearer ', '');
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = authHeader.replace('Bearer ', '');
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 

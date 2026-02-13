@@ -10,9 +10,10 @@ import { getConnections } from '@/app/actions/connections';
 import { rankTracks, DAILY_TRACK_LIMIT } from '@/services/scoring';
 
 export async function GET(request: NextRequest) {
-  // Auth check
-  const token = request.headers.get('authorization')?.replace('Bearer ', '');
-  if (!token) {
+  // Auth check — cookies first, fall back to Bearer header
+  const accessToken = request.cookies.get('sb-access-token')?.value
+    || request.headers.get('authorization')?.replace('Bearer ', '');
+  if (!accessToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
   if (authError || !user) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }

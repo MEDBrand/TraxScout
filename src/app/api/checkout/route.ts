@@ -1,16 +1,16 @@
 // Stripe Checkout API Route
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getStripe, PLANS, TRIAL_DAYS } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Verify authenticated session before creating checkout
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
+    // Cookies first, fall back to Bearer header
+    const accessToken = request.cookies.get('sb-access-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
 
-    if (!token) {
+    if (!accessToken) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
 
     if (authError || !user) {
       return NextResponse.json(
