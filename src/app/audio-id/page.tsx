@@ -47,7 +47,30 @@ export default function AudioIdPage() {
       setErrorMsg('');
       chunksRef.current = [];
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // On iOS, create an AudioContext first to keep music playing
+      // Setting it to 'ambient' category prevents pausing other audio
+      try {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new AudioCtx();
+        // Resume context (required for iOS Safari)
+        await ctx.resume();
+        // Create a silent buffer to activate the session without interrupting
+        const buffer = ctx.createBuffer(1, 1, 22050);
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(ctx.destination);
+        source.start(0);
+      } catch {
+        // Non-critical — continue without it
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
       streamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream, {
