@@ -97,7 +97,7 @@ export function useAudioIdentify(options: UseAudioIdentifyOptions = {}) {
       setResult(null);
       setElapsed(0);
       chunksRef.current = [];
-      haptic('medium');
+      haptic.medium();
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -166,7 +166,7 @@ export function useAudioIdentify(options: UseAudioIdentifyOptions = {}) {
       const message = err instanceof Error ? err.message : 'Microphone access denied';
       setStatus('error');
       onError?.(message);
-      haptic('error');
+      haptic.error();
     }
   }, [recordDurationMs, stopRecording, onError]);
 
@@ -184,7 +184,7 @@ export function useAudioIdentify(options: UseAudioIdentifyOptions = {}) {
 
   const identifyAudio = useCallback(async (blob: Blob) => {
     setStatus('identifying');
-    haptic('light');
+    haptic.light();
 
     try {
       const formData = new FormData();
@@ -208,16 +208,16 @@ export function useAudioIdentify(options: UseAudioIdentifyOptions = {}) {
 
       if (data.found) {
         setStatus('found');
-        haptic('success');
+        haptic.success();
       } else {
         setStatus('not-found');
-        haptic('warning');
+        haptic.medium();
       }
 
       onResult?.(data);
     } catch (err) {
       setStatus('error');
-      haptic('error');
+      haptic.error();
       onError?.('Failed to identify track');
     }
   }, [onResult, onError, getLocation]);

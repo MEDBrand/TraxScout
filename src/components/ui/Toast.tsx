@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       // Haptic feedback based on type
       if (type === 'success') haptic.success();
       else if (type === 'error') haptic.error();
-      else if (type === 'warning') haptic('warning');
+      else if (type === 'warning') haptic.medium();
       else haptic.light();
 
       setToasts((prev) => [...prev, { id, type, message, duration }]);
