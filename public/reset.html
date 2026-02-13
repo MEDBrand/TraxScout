@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html><head><title>Resetting...</title></head>
+<body style="background:#000;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
+<div id="status">Clearing cache...</div>
+<script>
+(async function() {
+  const s = document.getElementById('status');
+  try {
+    // Unregister all service workers
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const r of regs) { await r.unregister(); }
+    s.textContent = 'Service workers removed. Clearing caches...';
+    
+    // Delete all caches
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+    
+    // Clear storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    s.textContent = 'All cleared! Redirecting...';
+    setTimeout(() => window.location.href = '/signup', 1500);
+  } catch(e) {
+    s.textContent = 'Error: ' + e.message + '. Try going to /signup manually.';
+  }
+})();
+</script>
+</body></html>
