@@ -82,31 +82,8 @@ function SignupForm() {
           bpm_max: 130,
         });
 
-        // Create Stripe checkout session (authenticated)
-        const { data: { session: authSession } } = await supabase.auth.getSession();
-        const response = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authSession?.access_token}`,
-          },
-          body: JSON.stringify({ tier }),
-        });
-
-        const { url, error: checkoutError } = await response.json();
-
-        if (checkoutError) {
-          setError(checkoutError);
-          setLoading(false);
-          return;
-        }
-
-        // Redirect to Stripe checkout
-        if (url) {
-          window.location.href = url;
-        } else {
-          router.push('/dashboard?welcome=true');
-        }
+        // Stripe not configured yet — skip checkout, go to dashboard
+        router.push('/dashboard?welcome=true');
       }
     } catch (err) {
       setError('Something went wrong. Please try again.');
