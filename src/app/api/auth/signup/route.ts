@@ -10,13 +10,13 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.redirect(
-        new URL(`/signup?error=${encodeURIComponent('Email and password required')}&tier=${tier}`, request.url)
+        new URL(`/signup?error=${encodeURIComponent('Email and password required')}&tier=${tier}`, request.url), 303)
       );
     }
 
     if (password.length < 6) {
       return NextResponse.redirect(
-        new URL(`/signup?error=${encodeURIComponent('Password must be at least 6 characters')}&tier=${tier}`, request.url)
+        new URL(`/signup?error=${encodeURIComponent('Password must be at least 6 characters')}&tier=${tier}`, request.url), 303)
       );
     }
 
@@ -32,19 +32,19 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.redirect(
-        new URL(`/signup?error=${encodeURIComponent(error.message)}&tier=${tier}`, request.url)
+        new URL(`/signup?error=${encodeURIComponent(error.message)}&tier=${tier}`, request.url), 303)
       );
     }
 
     // If email confirmation is required (no session returned)
     if (!data.session) {
       return NextResponse.redirect(
-        new URL(`/login?error=${encodeURIComponent('Check your email for a confirmation link, then sign in.')}`, request.url)
+        new URL(`/login?error=${encodeURIComponent('Check your email for a confirmation link, then sign in.')}`, request.url), 303)
       );
     }
 
     // Auto-login: set cookies and redirect to dashboard
-    const response = NextResponse.redirect(new URL('/dashboard?welcome=true', request.url));
+    const response = NextResponse.redirect(new URL('/dashboard?welcome=true', request.url), 303);
     response.cookies.set('sb-access-token', data.session.access_token, {
       httpOnly: true,
       secure: true,
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     return response;
   } catch {
     return NextResponse.redirect(
-      new URL(`/signup?error=${encodeURIComponent('Something went wrong. Please try again.')}`, request.url)
+      new URL(`/signup?error=${encodeURIComponent('Something went wrong. Please try again.')}`, request.url), 303)
     );
   }
 }

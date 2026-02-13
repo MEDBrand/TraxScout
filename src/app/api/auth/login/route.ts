@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       if (contentType.includes('form')) {
-        return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent('Email and password required')}`, request.url));
+        return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent('Email and password required')}`, request.url), 303);
       }
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
     }
@@ -39,14 +39,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       if (contentType.includes('form')) {
-        return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}&redirect=${encodeURIComponent(redirect)}`, request.url));
+        return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}&redirect=${encodeURIComponent(redirect)}`, request.url), 303);
       }
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
     // For form submissions: set cookies and redirect
     if (contentType.includes('form')) {
-      const response = NextResponse.redirect(new URL(redirect, request.url));
+      const response = NextResponse.redirect(new URL(redirect, request.url), 303);
       // Set auth cookies so middleware can read them
       response.cookies.set('sb-access-token', data.session.access_token, {
         httpOnly: true,
