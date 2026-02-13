@@ -241,6 +241,7 @@ export default function Home() {
               <ul className="space-y-3 mb-8 text-[#A1A1AA] flex-1">
                 <PricingItem>Beatport &amp; Traxsource scanning</PricingItem>
                 <PricingItem>Promo pool connections</PricingItem>
+                <PricingItem>Audio ID — 10 IDs/month</PricingItem>
                 <PricingItem>Genre &amp; BPM filters</PricingItem>
                 <PricingItem>Daily email digest</PricingItem>
               </ul>
@@ -269,6 +270,7 @@ export default function Home() {
               </div>
               <ul className="space-y-3 mb-8 text-[#A1A1AA] flex-1">
                 <PricingItem purple>Everything in Basic</PricingItem>
+                <PricingItem gold>Unlimited Audio IDs</PricingItem>
                 <PricingItem gold>AI smart curation</PricingItem>
                 <PricingItem gold>Vibe matching</PricingItem>
                 <PricingItem gold>AI track descriptions</PricingItem>

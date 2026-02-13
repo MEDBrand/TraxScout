@@ -231,7 +231,7 @@ export default function DashboardPage() {
         <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 py-2 text-xs text-[#71717A] uppercase tracking-wider border-b border-white/[0.06] mb-1">
           <div>Track</div>
           <div className="w-20 text-center">BPM</div>
-          <div className="w-20 text-center">Score</div>
+          <div className="w-20 text-center">Why</div>
           <div className="w-10" />
         </div>
 
@@ -358,10 +358,12 @@ function TrackRow({
         {track.source || 'traxscout'}
       </div>
 
-      {/* Score */}
-      {track.score != null && (
-        <div className="w-9 h-9 rounded-lg bg-[#7C3AED]/10 flex items-center justify-center flex-shrink-0">
-          <span className="text-xs font-bold text-[#7C3AED]">{track.score}</span>
+      {/* Reason tag */}
+      {track.source && (
+        <div className="hidden sm:block text-[10px] rounded-full px-2.5 py-1 flex-shrink-0 bg-[#7C3AED]/10 text-[#7C3AED] font-medium whitespace-nowrap">
+          {track.source === 'inflyte' || track.source === 'trackstack' ? 'From your promo pool' :
+           track.genre?.toLowerCase().includes('tech house') ? 'Matches your vibe' :
+           'New release'}
         </div>
       )}
 

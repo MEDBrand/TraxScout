@@ -5,13 +5,12 @@ import { usePathname } from 'next/navigation';
 
 const TABS = [
   { label: 'Home', icon: '🏠', href: '/dashboard' },
-  { label: 'Discover', icon: '🔍', href: '/discover' },
   { label: 'Audio ID', icon: '🎙️', href: '/audio-id' },
   { label: 'Crate', icon: '📦', href: '/crate' },
   { label: 'Settings', icon: '⚙️', href: '/settings' },
 ] as const;
 
-const VISIBLE_PATHS = ['/dashboard', '/discover', '/audio-id', '/crate', '/settings'];
+const VISIBLE_PATHS = ['/dashboard', '/audio-id', '/crate', '/settings'];
 
 export default function BottomTabBar() {
   const pathname = usePathname();

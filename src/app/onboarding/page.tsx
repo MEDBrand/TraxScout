@@ -53,7 +53,7 @@ export default function OnboardingPage() {
     setGenres(prev => prev.includes(g) ? prev.filter(x => x !== g) : [...prev, g]);
   }, []);
 
-  const finish = useCallback((useDefaults = false) => {
+  const finish = useCallback(async (useDefaults = false) => {
     const prefs = useDefaults ? DEFAULTS : {
       djType: djType || DEFAULTS.djType,
       genres: genres.length ? genres : DEFAULTS.genres,
@@ -62,6 +62,18 @@ export default function OnboardingPage() {
       sources: connectedSources,
     };
     localStorage.setItem('traxscout_prefs', JSON.stringify(prefs));
+
+    // Sync to Supabase (fire and forget — localStorage is the fallback)
+    try {
+      await fetch('/api/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prefs),
+      });
+    } catch {
+      // Silently fail — localStorage has the data
+    }
+
     router.push('/dashboard');
   }, [djType, genres, bpmMin, bpmMax, connectedSources, router]);
 
