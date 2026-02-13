@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn, signInWithGoogle } from '@/lib/supabase-browser';
+import { signInWithGoogle } from '@/lib/supabase-browser';
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -21,15 +21,30 @@ function LoginContent() {
     setError('');
 
     try {
-      const { error } = await signIn(email, password);
+      // Server-side auth to avoid client storage detection issues
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (error) {
-        setError(error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
         setLoading(false);
-      } else {
-        router.push(redirect);
+        return;
       }
-    } catch (err) {
+
+      // Set session manually in Supabase client
+      const { supabase } = await import('@/lib/supabase-browser');
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      router.push(redirect);
+    } catch {
       setError('Something went wrong. Try again.');
       setLoading(false);
     }
