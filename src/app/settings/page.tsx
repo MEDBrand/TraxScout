@@ -3,10 +3,57 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+import BottomTabBar from '@/components/BottomTabBar';
+
 const GENRES = [
   'Tech House', 'Deep House', 'Afro House', 'Minimal / Deep Tech',
   'Melodic House & Techno', 'House', 'Techno', 'Progressive House',
 ];
+
+const PLATFORM_ICONS: Record<string, React.ReactNode> = {
+  Beatport: (
+    <svg viewBox="0 0 24 24" fill="#94FC13" className="w-8 h-8 flex-shrink-0">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.5 15h-7v-2h7v2zm1-4h-9v-2h9v2zm-2-4H9.5V7h5v2z" />
+    </svg>
+  ),
+  Traxsource: (
+    <svg viewBox="0 0 24 24" fill="#4A90D9" className="w-8 h-8 flex-shrink-0">
+      <circle cx="12" cy="12" r="10" fillOpacity="0.2" />
+      <path d="M6 9h12v2h-5v8h-2v-8H6V9z" fill="#4A90D9" />
+    </svg>
+  ),
+  Bandcamp: (
+    <svg viewBox="0 0 24 24" fill="#1DA0C3" className="w-8 h-8 flex-shrink-0">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 13H7l2.5-6h7.5L17 15z" />
+    </svg>
+  ),
+  SoundCloud: (
+    <svg viewBox="0 0 24 24" fill="#FF5500" className="w-8 h-8 flex-shrink-0">
+      <path d="M17.5 7c-2.3 0-4.3 1.4-5.2 3.4-.3 0-.6-.1-.9-.1-3 0-5.5 2.5-5.5 5.5S8.5 21.3 11.5 21.3h6c2.5 0 4.5-2 4.5-4.5s-2-4.5-4.5-4.5c0-2.9-2.3-5.3-5.3-5.3z" />
+    </svg>
+  ),
+  Inflyte: (
+    <svg viewBox="0 0 24 24" fill="#9B59B6" className="w-8 h-8 flex-shrink-0">
+      <path d="M2 12l20-9-9 20-2-8-9-3z" />
+    </svg>
+  ),
+  Trackstack: (
+    <svg viewBox="0 0 24 24" fill="#00D4AA" className="w-8 h-8 flex-shrink-0">
+      <path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 11l-2.5-1.25L12 11zm0 2.5l5.5-2.75 2.5-1.25L20 9.5l-8 4-8-4 0 0 2.5 1.25 5.5 2.75z" />
+    </svg>
+  ),
+  'Promo Box': (
+    <svg viewBox="0 0 24 24" fill="#F97316" className="w-8 h-8 flex-shrink-0">
+      <path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18s-.41-.06-.57-.18l-7.9-4.44A.991.991 0 0 1 3 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18s.41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9zM12 4.15L6.04 7.5 12 10.85l5.96-3.35L12 4.15z" />
+    </svg>
+  ),
+  'Label Worx': (
+    <svg viewBox="0 0 24 24" fill="#EF4444" className="w-8 h-8 flex-shrink-0">
+      <circle cx="12" cy="12" r="10" fillOpacity="0.2" />
+      <path d="M7 7h2v8h4v2H7V7zm6 0h2l3 8h-2.2l-.6-2h-2.4l-.6 2H10l3-8z" />
+    </svg>
+  ),
+};
 
 interface UserInfo {
   user: { id: string; email: string } | null;
@@ -110,13 +157,15 @@ export default function SettingsPage() {
             { name: 'Promo Box', color: '#F97316', desc: 'Your promo pool deliveries from labels and distributors.', tier: 'pro' },
             { name: 'Label Worx', color: '#EF4444', desc: 'Your Label Worx promo pool and pre-release tracks.', tier: 'pro' },
           ].map(platform => (
-            <div key={platform.name} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: platform.color }} />
+            <div key={platform.name} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
+              <div className="flex items-center gap-4">
+                {PLATFORM_ICONS[platform.name] || <div className="w-8 h-8 rounded-full" style={{ backgroundColor: platform.color }} />}
                 <div>
-                  <span className="font-medium">{platform.name}</span>
-                  {platform.tier === 'pro' && !isPro && <span className="ml-2 text-xs bg-[#F59E0B]/20 text-[#F59E0B] px-2 py-0.5 rounded">PRO</span>}
-                  <p className="text-[#A1A1AA] text-xs">{platform.desc}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{platform.name}</span>
+                    {platform.tier === 'pro' && !isPro && <span className="text-[10px] bg-[#F59E0B]/20 text-[#F59E0B] px-1.5 py-0.5 rounded uppercase tracking-wide font-bold">PRO</span>}
+                  </div>
+                  <p className="text-[#A1A1AA] text-xs mt-0.5">{platform.desc}</p>
                 </div>
               </div>
               <button
@@ -124,7 +173,7 @@ export default function SettingsPage() {
                 className={`text-sm px-4 py-1.5 rounded-lg transition ${
                   platform.tier === 'basic' || isPro
                     ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white'
-                    : 'text-[#A1A1AA] cursor-not-allowed'
+                    : 'text-[#A1A1AA] cursor-not-allowed bg-white/5'
                 }`}
               >
                 {platform.tier === 'basic' || isPro ? 'Connect' : 'Upgrade'}
@@ -186,6 +235,7 @@ export default function SettingsPage() {
           </a>
         </section>
       </div>
+      <BottomTabBar />
     </main>
   );
 }
