@@ -183,7 +183,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Connect Banner — Glassmorphism (#3) */}
-        <div className="rounded-2xl px-5 py-4 mb-6 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '0.5px solid rgba(255,255,255,0.05)' }}>
+        <div className="rounded-2xl px-5 py-4 mb-6 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '0.5px solid rgba(124,58,237,0.3)', boxShadow: '0 0 20px rgba(124,58,237,0.1)' }}>
           <div>
             <span className="text-sm text-[#A1A1AA]">Connect </span>
             <span className="text-sm text-white font-medium">Beatport, Traxsource</span>
@@ -197,12 +197,27 @@ export default function DashboardPage() {
         {/* Stats — Glassmorphism + accent glow (#6) */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { value: todayCount, label: "Today\u2019s picks (20 max)", color: '#FFFFFF' },
+            { value: todayCount, label: "Today\u2019s picks (20 max)", color: '#FFFFFF', isHero: true },
             { value: newCount, label: 'New', color: '#F59E0B' },
             { value: savedCount, label: 'Saved', color: savedCount === 0 ? '#6B6B6B' : '#F59E0B' },
           ].map((stat, i) => (
-            <div key={i} className="relative rounded-2xl p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <div className="absolute top-0 left-[20%] right-[20%] h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.5), transparent)' }} />
+            <div key={i} className="relative rounded-2xl p-4 overflow-hidden" style={{ 
+              background: 'rgba(255,255,255,0.02)', 
+              border: stat.isHero ? 'none' : '0.5px solid rgba(255,255,255,0.05)', 
+              backdropFilter: 'blur(20px)', 
+              WebkitBackdropFilter: 'blur(20px)' 
+            }}>
+              {stat.isHero && (
+                 <div className="absolute inset-0 pointer-events-none" style={{
+                   padding: '1px',
+                   borderRadius: '16px',
+                   background: 'linear-gradient(135deg, rgba(124,58,237,0.5), rgba(255,255,255,0.1), rgba(245,158,11,0.2))',
+                   WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                   WebkitMaskComposite: 'xor',
+                   maskComposite: 'exclude'
+                 }} />
+              )}
+              {!stat.isHero && <div className="absolute top-0 left-[20%] right-[20%] h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.5), transparent)' }} />}
               <div className="text-3xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
               <div className="text-xs text-[#71717A] mt-1">{stat.label}</div>
             </div>
@@ -314,10 +329,12 @@ function TrackRow({
 
   return (
     <div
-      className="group rounded-[14px] px-4 py-3 flex items-center gap-3 transition-all active:shadow-[inset_0_0_20px_rgba(124,58,237,0.08)]"
+      className="group rounded-[14px] px-4 py-4 mb-2 flex items-center gap-4 transition-all active:shadow-[inset_0_0_20px_rgba(124,58,237,0.08)]"
       style={{
-        background: playing ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)',
-        border: playing ? '0.5px solid rgba(124,58,237,0.3)' : '0.5px solid rgba(255,255,255,0.04)',
+        background: playing ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
+        border: playing ? '0.5px solid rgba(124,58,237,0.3)' : '0.5px solid rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)'
       }}
     >
       {/* Play / Index */}
@@ -340,27 +357,28 @@ function TrackRow({
 
       {/* Artwork */}
       {track.artwork_url ? (
-        <img src={track.artwork_url} alt="" className="w-11 h-11 rounded-lg object-cover flex-shrink-0" />
+        <img src={track.artwork_url} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0 shadow-lg" />
       ) : (
-        <div className="w-11 h-11 rounded-lg bg-[#1A1A1A] flex items-center justify-center flex-shrink-0">
-          <span className="text-lg">🎵</span>
+        <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg"
+             style={{ background: 'linear-gradient(135deg, #2D1B4E 0%, #000000 100%)', border: '0.5px solid rgba(255,255,255,0.1)' }}>
+          <div className="w-4 h-4 rounded-full bg-white/10" />
         </div>
       )}
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-[15px] truncate">{track.artist}</span>
+          <span className="font-medium text-[15px] truncate text-white">{track.artist}</span>
           <span className="text-[#71717A] hidden sm:inline">–</span>
           <span className="text-[#A1A1AA] text-[15px] truncate hidden sm:inline">{track.title}</span>
         </div>
         <div className="sm:hidden text-[#A1A1AA] text-sm truncate">{track.title}</div>
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="flex items-center gap-2 mt-1">
           {track.label && (
             <span className="text-xs text-[#71717A] truncate max-w-[140px]">{track.label}</span>
           )}
           {track.genre && (
-            <span className="text-[10px] text-[#A1A1AA] bg-white/[0.06] rounded-full px-2 py-0.5">{track.genre}</span>
+            <span className="text-[10px] text-[#A1A1AA] bg-white/[0.06] rounded-full px-2 py-0.5 border border-white/[0.04]">{track.genre}</span>
           )}
         </div>
       </div>
@@ -368,29 +386,29 @@ function TrackRow({
       {/* BPM */}
       {track.bpm && (
         <div className="hidden sm:flex flex-col items-center w-16 flex-shrink-0">
-          <span className="text-sm font-medium">{track.bpm}</span>
+          <span className="text-sm font-medium text-white/80">{track.bpm}</span>
           <span className="text-[10px] text-[#71717A]">BPM</span>
         </div>
       )}
 
       {/* Audio ID badge */}
       {track.audio_id && (
-        <div className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 flex-shrink-0 bg-[#F59E0B]/10 text-[#F59E0B]">
+        <div className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 flex-shrink-0 bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20">
           🎤 Audio ID
         </div>
       )}
 
       {/* Source badge */}
       <div
-        className="hidden sm:block text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 flex-shrink-0"
-        style={{ color: sourceColor, backgroundColor: `${sourceColor}15` }}
+        className="hidden sm:block text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1 flex-shrink-0 border border-white/5"
+        style={{ color: sourceColor, backgroundColor: `${sourceColor}10`, borderColor: `${sourceColor}20` }}
       >
         {track.source || 'traxscout'}
       </div>
 
       {/* Reason tag */}
       {track.source && (
-        <div className="hidden sm:block text-[10px] rounded-full px-2.5 py-1 flex-shrink-0 bg-[#7C3AED]/10 text-[#7C3AED] font-medium whitespace-nowrap">
+        <div className="hidden sm:block text-[10px] rounded-full px-2.5 py-1 flex-shrink-0 bg-[#7C3AED]/10 text-[#7C3AED] font-medium whitespace-nowrap border border-[#7C3AED]/20">
           {['inflyte', 'trackstack', 'promo-box', 'label-worx'].includes(track.source || '') ? 'From your promo pool' :
            track.genre?.toLowerCase().includes('tech house') ? 'Matches your vibe' :
            'New release'}
