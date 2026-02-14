@@ -125,7 +125,7 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold">Settings</h1>
 
         {/* Subscription */}
-        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+        <section className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <h2 className="text-lg font-semibold mb-4">Subscription</h2>
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -143,7 +143,7 @@ export default function SettingsPage() {
         </section>
 
         {/* Connected Accounts */}
-        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+        <section className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <h2 className="text-lg font-semibold mb-2">Connected Accounts</h2>
           <p className="text-[#A1A1AA] text-sm mb-4">Link your accounts to see everything in one place.</p>
           
@@ -183,7 +183,7 @@ export default function SettingsPage() {
         </section>
 
         {/* Genres */}
-        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+        <section className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <h2 className="text-lg font-semibold mb-4">Genres</h2>
           <div className="flex flex-wrap gap-2">
             {GENRES.map(genre => (
@@ -203,7 +203,7 @@ export default function SettingsPage() {
         </section>
 
         {/* BPM Range */}
-        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+        <section className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <h2 className="text-lg font-semibold mb-4">BPM Range</h2>
           <div className="flex items-center gap-3">
             <input
@@ -224,7 +224,7 @@ export default function SettingsPage() {
         </section>
 
         {/* Account */}
-        <section className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+        <section className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.02)', border: '0.5px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <h2 className="text-lg font-semibold mb-4">Account</h2>
           <p className="text-[#A1A1AA] text-sm">{userInfo.user.email}</p>
           <a
